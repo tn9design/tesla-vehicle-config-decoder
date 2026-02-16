@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tesla Model S Compositor URL Builder (Unofficial)</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    body { margin: 0; padding: 20px; background: #0b0b0c; color: #f2f2f2; }
+    h1 { margin: 0 0 8px; font-size: 20px; }
+    p { margin: 6px 0 14px; color: #bdbdbd; line-height: 1.35; }
+    .wrap { display: grid; grid-template-columns: 360px 1fr; gap: 16px; align-items: start; }
+    @media (max-width: 900px){ .wrap { grid-template-columns: 1fr; } }
+    .card { background: #121214; border: 1px solid #222228; border-radius: 14px; padding: 14px; }
+    label { display: block; font-size: 12px; color: #bdbdbd; margin: 10px 0 6px; }
+    select, input[type="number"], input[type="text"] {
+      width: 100%; padding: 10px 10px; border-radius: 10px;
+      border: 1px solid #2a2a33; background: #0e0e12; color: #f2f2f2;
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    button {
+      width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid #2a2a33;
+      background: #1b1b22; color: #f2f2f2; cursor: pointer;
+    }
+    button:hover { background: #23232c; }
+    .btnrow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .muted { font-size: 12px; color: #a6a6a6; }
+    .urlbox { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px; padding: 10px; border-radius: 12px; background: #0e0e12; border: 1px solid #2a2a33;
+      overflow-wrap: anywhere; color: #d6d6ff;
+    }
+    .preview {
+      width: 100%; max-width: 980px; border-radius: 16px; border: 1px solid #222228; background: #0e0e12;
+      display: block;
+    }
+    .toast { margin-top: 10px; font-size: 12px; color: #9fe6b8; min-height: 16px; }
+    .divider { height: 1px; background: #222228; margin: 14px 0; }
+    .small { font-size: 11px; color: #8f8f8f; }
+  </style>
+</head>
+<body>
+  <h1>Tesla Model S Compositor URL Builder (Unofficial)</h1>
+  <p>Build a Tesla image URL that matches your Model S config. Uses Tesla’s public compositor endpoint. No login. No guarantees. 🙂</p>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="row">
+        <div>
+          <label for="trim">Trim</label>
+          <select id="trim"></select>
+        </div>
+        <div>
+          <label for="paint">Paint</label>
+          <select id="paint"></select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="wheels">Wheels</label>
+          <select id="wheels"></select>
+        </div>
+        <div>
+          <label for="interior">Interior</label>
+          <select id="interior"></select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="view">View</label>
+          <select id="view"></select>
+        </div>
+        <div>
+          <label for="bg">Background</label>
+          <select id="bg">
+            <option value="2">Studio (bkba_opt=2)</option>
+            <option value="1">Transparent (bkba_opt=1)</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="steeringWrap" style="display:none;">
+        <label for="steering">Steering (INTERIOR view only)</label>
+        <select id="steering"></select>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="size">Size (px)</label>
+          <input id="size" type="number" min="256" max="4096" step="64" value="1920" />
+        </div>
+        <div>
+          <label for="model">Model</label>
+          <input id="model" type="text" value="ms" disabled />
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <label>Generated URL</label>
+      <div id="url" class="urlbox"></div>
+
+      <div class="btnrow">
+        <button id="copyUrl">Copy URL</button>
+        <button id="openUrl">Open Image</button>
+      </div>
+
+      <div class="btnrow">
+        <button id="copyYaml">Copy HA YAML</button>
+        <button id="toggleBg">Make Light/Dark Pair</button>
+      </div>
+
+      <div class="toast" id="toast"></div>
+
+      <div class="divider"></div>
+      <div class="small">
+        Notes:
+        <ul>
+          <li>Accessories (Home Charger, liners, etc.) don’t affect the render URL.</li>
+          <li>Wheels & interiors are trim-scoped (AWD vs Plaid use different codes).</li>
+          <li>Steering code only appears in INTERIOR view.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <img id="preview" class="preview" alt="Preview" />
+      <p class="muted" style="margin-top:10px;">
+        If the preview doesn’t load, Tesla may be rate-limiting or the endpoint may have changed.
+      </p>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // Base compositor settings
+  const BASE = "https://static-assets.tesla.com/configurator/compositor";
+  const FIXED = {
+    context: "design_studio_2",
+    model: "ms",
+    crop: "0,0,0,0",
+    overlay: "0"
+  };
+
+  // Decoded mappings (Model S)
+  const TRIMS = {
+    "$MTS22": "Dual Motor AWD",
+    "$MTS23": "Plaid"
+  };
+
+  const PAINTS = {
+    "$PN01": "Stealth Grey",
+    "$PPSW": "Pearl White Multi-Coat",
+    "$PX02": "Diamond Black",
+    "$PB00": "Frost Blue Metallic",
+    "$PR01": "Ultra Red",
+    "$PN02": "Lunar Silver"
+  };
+
+  const VIEWS = {
+    "FRONT34": "Front 3/4",
+    "REAR34": "Rear 3/4",
+    "SIDE": "Side Profile",
+    "RIMCLOSEUP": "Wheel Close-Up",
+    "INTERIOR": "Interior Cabin"
+  };
+
+  const STEERING = {
+    "$ST06": "Standard Steering Wheel",
+    "$ST1Y": "Yoke Steering"
+  };
+
+  // Trim-scoped wheels & interiors
+  const WHEELS_BY_TRIM = {
+    "$MTS22": { // AWD
+      "$WS93": '19" Magnetite',
+      "$WS13": '21" Velarium'
+    },
+    "$MTS23": { // Plaid
+      "$WS94": '19" Magnetite',
+      "$WS14": '21" Velarium'
+    }
+  };
+
+  const INTERIOR_BY_TRIM = {
+    "$MTS22": { // AWD
+      "$IBE01": "All Black",
+      "$IWW01": "Black & White",
+      "$ICW01": "Cream"
+    },
+    "$MTS23": { // Plaid
+      "$IBC02": "All Black",
+      "$IWC02": "Black & White",
+      "$ICC02": "Cream"
+    }
+  };
+
+  // DOM
+  const el = (id) => document.getElementById(id);
+  const trimEl = el("trim");
+  const paintEl = el("paint");
+  const wheelsEl = el("wheels");
+  const interiorEl = el("interior");
+  const viewEl = el("view");
+  const bgEl = el("bg");
+  const steeringWrap = el("steeringWrap");
+  const steeringEl = el("steering");
+  const sizeEl = el("size");
+  const urlBox = el("url");
+  const preview = el("preview");
+  const toast = el("toast");
+
+  function setToast(msg) {
+    toast.textContent = msg;
+    if (msg) setTimeout(() => { if (toast.textContent === msg) toast.textContent = ""; }, 1800);
+  }
+
+  function fillSelect(select, obj) {
+    select.innerHTML = "";
+    Object.entries(obj).forEach(([code, label]) => {
+      const opt = document.createElement("option");
+      opt.value = code;
+      opt.textContent = label;
+      select.appendChild(opt);
+    });
+  }
+
+  function refreshTrimScopedOptions() {
+    const trim = trimEl.value;
+    const wheels = WHEELS_BY_TRIM[trim];
+    const interiors = INTERIOR_BY_TRIM[trim];
+
+    const prevWheel = wheelsEl.value;
+    const prevInterior = interiorEl.value;
+
+    fillSelect(wheelsEl, wheels);
+    fillSelect(interiorEl, interiors);
+
+    if (prevWheel && wheels[prevWheel]) wheelsEl.value = prevWheel;
+    if (prevInterior && interiors[prevInterior]) interiorEl.value = prevInterior;
+  }
+
+  function buildUrl({ bgOverride } = {}) {
+    const trim = trimEl.value;
+    const paint = paintEl.value;
+    const view = viewEl.value;
+    const bg = bgOverride ?? bgEl.value;
+    const size = String(sizeEl.value || 1920);
+
+    let options = [];
+    if (view === "INTERIOR") {
+      options = [trim, paint, interiorEl.value, steeringEl.value];
+    } else {
+      options = [trim, paint, wheelsEl.value, interiorEl.value];
+    }
+
+    const params = new URLSearchParams();
+    params.set("context", FIXED.context);
+    params.set("options", options.join(","));
+    params.set("view", view);
+    params.set("model", FIXED.model);
+    params.set("size", size);
+    params.set("bkba_opt", String(bg));
+    params.set("crop", FIXED.crop);
+    params.set("overlay", FIXED.overlay);
+
+    return `${BASE}?${params.toString()}`;
+  }
+
+  function updateUI() {
+    const view = viewEl.value;
+    steeringWrap.style.display = (view === "INTERIOR") ? "block" : "none";
+
+    const url = buildUrl();
+    urlBox.textContent = url;
+
+    preview.src = url;
+  }
+
+  async function copy(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      setToast("Copied ✅");
+    } catch {
+      setToast("Copy failed (browser permissions).");
+    }
+  }
+
+  function buildHaYaml() {
+    const url = buildUrl();
+    return [
+      "type: picture",
+      `image: \"${url}\"`,
+      "tap_action:",
+      "  action: url",
+      `  url_path: \"${url}\"`
+    ].join("\n");
+  }
+
+  [trimEl, paintEl, wheelsEl, interiorEl, viewEl, bgEl, steeringEl, sizeEl].forEach(x => {
+    x.addEventListener("change", () => {
+      if (x === trimEl) refreshTrimScopedOptions();
+      updateUI();
+    });
+    x.addEventListener("input", () => {
+      if (x === sizeEl) updateUI();
+    });
+  });
+
+  el("copyUrl").addEventListener("click", () => copy(urlBox.textContent));
+  el("openUrl").addEventListener("click", () => window.open(urlBox.textContent, "_blank", "noopener,noreferrer"));
+  el("copyYaml").addEventListener("click", () => copy(buildHaYaml()));
+
+  el("toggleBg").addEventListener("click", () => {
+    const dark = buildUrl({ bgOverride: 2 });
+    const light = buildUrl({ bgOverride: 1 });
+    const out = [
+      "Light/Dark URLs:",
+      "",
+      `Studio (bkba_opt=2): ${dark}`,
+      "",
+      `Transparent (bkba_opt=1): ${light}`,
+    ].join("\n");
+    copy(out);
+  });
+
+  fillSelect(trimEl, TRIMS);
+  fillSelect(paintEl, PAINTS);
+  fillSelect(viewEl, VIEWS);
+  fillSelect(steeringEl, STEERING);
+
+  trimEl.value = "$MTS23";
+  paintEl.value = "$PN02";
+  viewEl.value = "FRONT34";
+  bgEl.value = "2";
+  sizeEl.value = "1920";
+  steeringEl.value = "$ST06";
+
+  refreshTrimScopedOptions();
+  updateUI();
+})();
+</script>
+</body>
+</html>

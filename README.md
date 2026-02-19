@@ -41,6 +41,26 @@ After generating a URL, the “Copy HA YAML” button gives you a ready-to-paste
 
 Paste this into your Lovelace dashboard YAML to display your car and allow tapping to open the image in a new tab.  
 
+## Option Code Reference (2021+ Model S)
+
+The latest generation of Tesla vehicles uses new one‑letter/number option tokens in the configurator URL. These tokens map to specific trim, paint and feature choices. The following table documents the tokens observed so far. If you discover new codes, feel free to extend this table.
+
+| Token    | Description                                                   |
+| -------- | ------------------------------------------------------------- |
+| `$MDLS`  | Vehicle model – Model S                                       |
+| `$MTS13` | Trim – Dual‑motor or Plaid (2021+ Model S refresh)            |
+| `$PBSB`  | Exterior colour – Solid Black                                 |
+| `$WS11`  | Wheels – 21″ Arachnid wheels                                  |
+| `$APF2`  | Autopilot hardware 3.0 / Full Self‑Driving computer           |
+| `$APBS`  | Autopilot software base package                               |
+| `$SC04`  | Paid supercharging (no free credits)                          |
+| `$CPF1`  | Interior décor – Carbon‑fibre trim                            |
+| `$IWW00` | Interior colour – All‑black premium interior                  |
+| `$ST0Y`  | Steering – Yoke steering wheel (2021+ Model S)                |
+
+*Note:* Many of these codes are still being decoded by the community. Values labelled here are based on observed builds and may change over time.
+
+
 ## License  
 
 This code is provided under the MIT License (see `LICENSE` for details).  Use at your own risk and respect Tesla’s terms of service when calling their endpoints.

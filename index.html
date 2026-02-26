@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="referrer" content="no-referrer" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https://static-assets.tesla.com; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'" />
-  <title>Tesla Model S Compositor URL Builder (Unofficial)</title>
+  <title>Tesla Vehicle Config Decoder (Unofficial)</title>
   <style>
     :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
     body { margin: 0; padding: 20px; background: #0b0b0c; color: #f2f2f2; }
@@ -23,6 +23,7 @@
       border: 1px solid #2a2a33; background: #0e0e12; color: #f2f2f2;
     }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .fullrow { margin-top: 10px; }
     button {
       width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid #2a2a33;
       background: #1b1b22; color: #f2f2f2; cursor: pointer;
@@ -30,7 +31,8 @@
     button:hover { background: #23232c; }
     .btnrow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
     .muted { font-size: 12px; color: #a6a6a6; }
-    .urlbox { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    .urlbox {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       font-size: 12px; padding: 10px; border-radius: 12px; background: #0e0e12; border: 1px solid #2a2a33;
       overflow-wrap: anywhere; color: #d6d6ff;
     }
@@ -38,67 +40,130 @@
       width: 100%; max-width: 980px; border-radius: 16px; border: 1px solid #222228; background: #0e0e12;
       display: block;
     }
+    .preview-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 980px;
+    }
+    .preview-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(242, 242, 242, 0.4);
+      background: rgba(11, 11, 12, 0.5);
+      color: #f2f2f2;
+      font-size: 16px;
+      line-height: 1;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .preview-nav.prev { left: 10px; }
+    .preview-nav.next { right: 10px; }
+    .preview-nav:hover { background: rgba(11, 11, 12, 0.75); }
     .toast { margin-top: 10px; font-size: 12px; color: #9fe6b8; min-height: 16px; }
     .divider { height: 1px; background: #222228; margin: 14px 0; }
     .small { font-size: 11px; color: #8f8f8f; }
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .swatches {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-height: 36px;
+      align-items: center;
+    }
+    .swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid #3a3a45;
+      padding: 0;
+      cursor: pointer;
+      outline: none;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
+    }
+    .swatch.active {
+      border-color: #f2f2f2;
+      box-shadow: 0 0 0 2px #0b0b0c, 0 0 0 3px #d8d8d8;
+    }
+    .swatch:focus-visible {
+      box-shadow: 0 0 0 2px #0b0b0c, 0 0 0 3px #9fe6b8;
+    }
   </style>
 </head>
 <body>
-  <h1>Tesla Model S Compositor URL Builder (Unofficial)</h1>
-  <p>Build a Tesla image URL that matches your Model S config. Uses Tesla’s public compositor endpoint. No login. No guarantees. 🙂</p>
+  <h1 id="title">Tesla Vehicle Config Decoder (Unofficial)</h1>
+  <p id="subtitle">Build a Tesla image URL that matches your vehicle config. Uses Tesla's public compositor endpoint. No login. No guarantees.</p>
 
   <div class="wrap">
     <div class="card">
       <div class="row">
         <div>
+          <label for="model">Model</label>
+          <select id="model">
+            <option value="ms">Model S</option>
+            <option value="m3">Model 3</option>
+            <option value="my">Model Y</option>
+          </select>
+        </div>
+        <div>
           <label for="trim">Trim</label>
           <select id="trim"></select>
         </div>
-        <div>
-          <label for="paint">Paint</label>
-          <select id="paint"></select>
-        </div>
+      </div>
+
+      <div class="fullrow">
+        <label for="paint">Paint</label>
+        <div id="paintSwatches" class="swatches" role="radiogroup" aria-label="Paint"></div>
+        <select id="paint" class="visually-hidden" aria-hidden="true"></select>
       </div>
 
       <div class="row">
+        <div>
+          <label for="interior">Interior</label>
+          <div id="interiorSwatches" class="swatches" role="radiogroup" aria-label="Interior"></div>
+          <select id="interior" class="visually-hidden" aria-hidden="true"></select>
+        </div>
         <div>
           <label for="wheels">Wheels</label>
           <select id="wheels"></select>
         </div>
-        <div>
-          <label for="interior">Interior</label>
-          <select id="interior"></select>
-        </div>
       </div>
 
       <div class="row">
         <div>
-          <label for="view">View</label>
-          <select id="view"></select>
-        </div>
-        <div>
           <label for="bg">Background</label>
           <select id="bg">
-            <option value="2">Studio (bkba_opt=2)</option>
-            <option value="1">Transparent (bkba_opt=1)</option>
+            <option value="2">Solid White</option>
+            <option value="1">Transparent</option>
           </select>
         </div>
+        <div>
+          <label for="size">Image Width (px)</label>
+          <input id="size" type="number" min="256" max="4096" step="64" value="1920" />
+        </div>
       </div>
+
+      <select id="view" class="visually-hidden" aria-hidden="true"></select>
 
       <div id="steeringWrap" style="display:none;">
         <label for="steering">Steering (INTERIOR view only)</label>
         <select id="steering"></select>
-      </div>
-
-      <div class="row">
-        <div>
-          <label for="size">Size (px)</label>
-          <input id="size" type="number" min="256" max="4096" step="64" value="1920" />
-        </div>
-        <div>
-          <label for="model">Model</label>
-          <input id="model" type="text" value="ms" disabled />
-        </div>
       </div>
 
       <div class="divider"></div>
@@ -122,99 +187,194 @@
       <div class="small">
         Notes:
         <ul>
-          <li>Accessories (Home Charger, liners, etc.) don’t affect the render URL.</li>
-          <li>Wheels & interiors are trim-scoped (AWD vs Plaid use different codes).</li>
-          <li>Steering code only appears in INTERIOR view.</li>
+          <li>Accessories (Home Charger, liners, etc.) do not affect the render URL.</li>
+          <li>Wheels and interiors can be trim-scoped (options change by trim).</li>
+          <li>Model S steering code only appears in INTERIOR view.</li>
         </ul>
       </div>
     </div>
 
     <div class="card">
-      <img id="preview" class="preview" alt="Preview" />
+      <div class="preview-wrap">
+        <button id="prevView" class="preview-nav prev" aria-label="Previous view">&#x2039;</button>
+        <img id="preview" class="preview" alt="Preview" />
+        <button id="nextView" class="preview-nav next" aria-label="Next view">&#x203A;</button>
+      </div>
       <p class="muted" style="margin-top:10px;">
-        If the preview doesn’t load, Tesla may be rate-limiting or the endpoint may have changed.
+        If the preview does not load, Tesla may be rate-limiting or the endpoint may have changed.
       </p>
     </div>
   </div>
 
 <script>
 (() => {
-  // Base compositor settings
   const BASE = "https://static-assets.tesla.com/configurator/compositor";
-  const FIXED = {
-    context: "design_studio_2",
-    model: "ms",
-    crop: "0,0,0,0",
-    overlay: "0"
-  };
 
-  // Decoded mappings (Model S)
-  const TRIMS = {
-    "$MTS22": "Dual Motor AWD",
-    "$MTS23": "Plaid"
-  };
-
-  const PAINTS = {
-    "$PN01": "Stealth Grey",
-    "$PPSW": "Pearl White Multi-Coat",
-    "$PX02": "Diamond Black",
-    "$PB00": "Frost Blue Metallic",
-    "$PR01": "Ultra Red",
-    "$PN02": "Lunar Silver"
-  };
-
-  const VIEWS = {
-    "FRONT34": "Front 3/4",
-    "REAR34": "Rear 3/4",
-    "SIDE": "Side Profile",
-    "RIMCLOSEUP": "Wheel Close-Up",
-    "INTERIOR": "Interior Cabin"
-  };
-
-  const STEERING = {
-    "$ST06": "Standard Steering Wheel",
-    "$ST1Y": "Yoke Steering"
-  };
-
-  // Trim-scoped wheels & interiors
-  const WHEELS_BY_TRIM = {
-    "$MTS22": { // AWD
-      "$WS93": '19" Magnetite',
-      "$WS13": '21" Velarium'
+  const MODELS = {
+    ms: {
+      label: "Model S",
+      fixed: { context: "design_studio_2", model: "ms", crop: "0,0,0,0", overlay: "0" },
+      trims: { "$MTS22": "Dual Motor AWD", "$MTS23": "Plaid" },
+      paints: {
+        "$PN01": "Stealth Grey",
+        "$PPSW": "Pearl White Multi-Coat",
+        "$PX02": "Diamond Black",
+        "$PB00": "Frost Blue Metallic",
+        "$PR01": "Ultra Red",
+        "$PN02": "Lunar Silver"
+      },
+      views: {
+        "FRONT34": "Front 3/4",
+        "REAR34": "Rear 3/4",
+        "SIDE": "Side Profile",
+        "RIMCLOSEUP": "Wheel Close-Up",
+        "INTERIOR": "Interior Cabin"
+      },
+      steering: { "$ST06": "Standard Steering Wheel", "$ST1Y": "Yoke Steering" },
+      hasSteering: true,
+      interiorViewKey: "INTERIOR",
+      wheelsByTrim: {
+        "$MTS22": { "$WS93": '19" Magnetite', "$WS13": '21" Velarium' },
+        "$MTS23": { "$WS94": '19" Magnetite', "$WS14": '21" Velarium' }
+      },
+      interiorsByTrim: {
+        "$MTS22": { "$IBE01": "All Black", "$IWW01": "Black & White", "$ICW01": "Cream" },
+        "$MTS23": { "$IBC02": "All Black", "$IWC02": "Black & White", "$ICC02": "Cream" }
+      },
+      defaults: { trim: "$MTS23", paint: "$PN02", view: "FRONT34", bg: "2", size: "1920", steering: "$ST06" }
     },
-    "$MTS23": { // Plaid
-      "$WS94": '19" Magnetite',
-      "$WS14": '21" Velarium'
+    m3: {
+      label: "Model 3",
+      fixed: { context: "design_studio_2", model: "m3", crop: "0,0,0,0", overlay: "0" },
+      trims: {
+        "$MT367": "Rear-Wheel Drive",
+        "$MT369": "Rear-Wheel Drive (Premium)",
+        "$MT370": "All-Wheel Drive (Premium)",
+        "$MT371": "Performance (AWD)"
+      },
+      paints: {
+        "$PN01": "Stealth Grey",
+        "$PPSW": "Pearl White Multi-Coat",
+        "$PPSB": "Deep Blue Metallic",
+        "$PX02": "Diamond Black",
+        "$PR01": "Ultra Red",
+        "$PN00": "Quicksilver"
+      },
+      views: {
+        "STUD_FRONT34": "Front 3/4",
+        "STUD_REAR34": "Rear 3/4",
+        "STUD_SIDE": "Side Profile",
+        "STUD_RIMCLOSEUP": "Wheel Close-Up"
+      },
+      hasSteering: false,
+      wheelsByTrim: {
+        "$MT367": { "$W38C": '18" Prismata', "$W39G": '19" Nova' },
+        "$MT369": { "$W38A": '18" Prismata', "$W39G": '19" Nova' },
+        "$MT370": { "$W38A": '18" Prismata', "$W39G": '19" Nova' },
+        "$MT371": { "$W30A": '20" Warp' }
+      },
+      interiorsByTrim: {
+        "$MT367": { "$IBB4": "All Black" },
+        "$MT369": { "$IPB2": "All Black", "$IPW2": "Black & White" },
+        "$MT370": { "$IPB3": "All Black", "$IPW3": "Black & White" },
+        "$MT371": { "$IPB4": "All Black", "$IPW4": "Black & White" }
+      },
+      defaults: { trim: "$MT367", paint: "$PN01", view: "STUD_FRONT34", bg: "2", size: "1920" }
+    },
+    my: {
+      label: "Model Y",
+      fixed: { context: "design_studio_2", model: "my", crop: "0,0,0,0", overlay: "0" },
+      trims: {
+        "$MTY61": "Rear-Wheel Drive",
+        "$MTY77": "All-Wheel Drive",
+        "$MTY60": "Rear-Wheel Drive (Premium)",
+        "$MTY48": "All-Wheel Drive (Premium)",
+        "$MTY70": "Performance (AWD)"
+      },
+      paints: {
+        "$PN01": "Stealth Grey",
+        "$PPSW": "Pearl White Multi-Coat",
+        "$PPSB": "Deep Blue Metallic",
+        "$PX02": "Diamond Black",
+        "$PR01": "Ultra Red",
+        "$PN00": "Quicksilver"
+      },
+      views: {
+        "FRONT34": "Front 3/4",
+        "REAR34": "Rear 3/4",
+        "SIDE": "Side Profile",
+        "RIMCLOSEUP": "Wheel Close-Up"
+      },
+      hasSteering: false,
+      wheelsByTrim: {
+        "$MTY61": { "$WY18P": '18" Aperture', "$WY19P": '19" Crossflow' },
+        "$MTY77": { "$WY18P": '18" Aperture', "$WY19P": '19" Crossflow' },
+        "$MTY60": { "$WY18P": '18" Aperture', "$WY19P": '19" Crossflow' },
+        "$MTY48": { "$WY18P": '18" Aperture', "$WY19P": '19" Crossflow' },
+        "$MTY70": { "$WY21A": '21" Arachnid 2.0' }
+      },
+      interiorsByTrim: {
+        "$MTY61": { "$IBB3": "All Black" },
+        "$MTY77": { "$IBB3": "All Black" },
+        "$MTY60": { "$IPB12": "All Black", "$IPW12": "Black & White" },
+        "$MTY48": { "$IPB12": "All Black", "$IPW12": "Black & White" },
+        "$MTY70": { "$IPB14": "All Black", "$IPW14": "Black & White" }
+      },
+      defaults: { trim: "$MTY61", paint: "$PN01", view: "FRONT34", bg: "2", size: "1920" }
     }
   };
 
-  const INTERIOR_BY_TRIM = {
-    "$MTS22": { // AWD
-      "$IBE01": "All Black",
-      "$IWW01": "Black & White",
-      "$ICW01": "Cream"
-    },
-    "$MTS23": { // Plaid
-      "$IBC02": "All Black",
-      "$IWC02": "Black & White",
-      "$ICC02": "Cream"
-    }
-  };
-
-  // DOM
   const el = (id) => document.getElementById(id);
+  const titleEl = el("title");
+  const subtitleEl = el("subtitle");
   const trimEl = el("trim");
   const paintEl = el("paint");
+  const paintSwatchesEl = el("paintSwatches");
   const wheelsEl = el("wheels");
   const interiorEl = el("interior");
+  const interiorSwatchesEl = el("interiorSwatches");
   const viewEl = el("view");
+  const prevViewEl = el("prevView");
+  const nextViewEl = el("nextView");
   const bgEl = el("bg");
   const steeringWrap = el("steeringWrap");
   const steeringEl = el("steering");
   const sizeEl = el("size");
+  const modelEl = el("model");
   const urlBox = el("url");
   const preview = el("preview");
   const toast = el("toast");
+  let currentModelKey = "ms";
+  const PAINT_SWATCHES = {
+    "$PN01": "linear-gradient(145deg, #555c65, #2f3338)",
+    "$PPSW": "linear-gradient(145deg, #fcfcfc, #d5d5d5)",
+    "$PX02": "linear-gradient(145deg, #272727, #080808)",
+    "$PB00": "linear-gradient(145deg, #85a0ba, #4f6e8b)",
+    "$PPSB": "linear-gradient(145deg, #2c569f, #0d2b63)",
+    "$PR01": "linear-gradient(145deg, #dc1f1f, #8e0f0f)",
+    "$PN02": "linear-gradient(145deg, #dcdee2, #a8adb5)",
+    "$PN00": "linear-gradient(145deg, #f0f1f3, #b3b6bc)"
+  };
+  const INTERIOR_SWATCHES = {
+    "$IBE01": "#1a1a1a",
+    "$IBC02": "#1a1a1a",
+    "$IBB4": "#1a1a1a",
+    "$IBB3": "#1a1a1a",
+    "$IPB2": "#1a1a1a",
+    "$IPB3": "#1a1a1a",
+    "$IPB4": "#1a1a1a",
+    "$IPB12": "#1a1a1a",
+    "$IPB14": "#1a1a1a",
+    "$IWW01": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
+    "$IWC02": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
+    "$IPW2": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
+    "$IPW3": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
+    "$IPW4": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
+    "$IPW12": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
+    "$IPW14": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
+    "$ICW01": "#d8ccb5",
+    "$ICC02": "#d8ccb5"
+  };
 
   function setToast(msg) {
     toast.textContent = msg;
@@ -231,10 +391,39 @@
     });
   }
 
-  function refreshTrimScopedOptions() {
+  function renderSwatches(selectEl, swatchEl, paletteMap) {
+    swatchEl.innerHTML = "";
+    Array.from(selectEl.options).forEach((opt) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "swatch";
+      btn.style.background = paletteMap[opt.value] || "#737680";
+      btn.title = opt.textContent;
+      btn.setAttribute("aria-label", opt.textContent);
+      btn.setAttribute("aria-checked", opt.value === selectEl.value ? "true" : "false");
+      btn.setAttribute("role", "radio");
+      if (opt.value === selectEl.value) btn.classList.add("active");
+      btn.addEventListener("click", () => {
+        selectEl.value = opt.value;
+        selectEl.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+      swatchEl.appendChild(btn);
+    });
+  }
+
+  function updateSwatchSelection(selectEl, swatchEl) {
+    Array.from(swatchEl.children).forEach((node, idx) => {
+      const selected = selectEl.options[idx] && selectEl.options[idx].value === selectEl.value;
+      node.classList.toggle("active", selected);
+      node.setAttribute("aria-checked", selected ? "true" : "false");
+    });
+  }
+
+  function refreshTrimScopedOptions({ preserve = true } = {}) {
+    const m = MODELS[currentModelKey];
     const trim = trimEl.value;
-    const wheels = WHEELS_BY_TRIM[trim];
-    const interiors = INTERIOR_BY_TRIM[trim];
+    const wheels = m.wheelsByTrim?.[trim] || {};
+    const interiors = m.interiorsByTrim?.[trim] || {};
 
     const prevWheel = wheelsEl.value;
     const prevInterior = interiorEl.value;
@@ -242,11 +431,16 @@
     fillSelect(wheelsEl, wheels);
     fillSelect(interiorEl, interiors);
 
-    if (prevWheel && wheels[prevWheel]) wheelsEl.value = prevWheel;
-    if (prevInterior && interiors[prevInterior]) interiorEl.value = prevInterior;
+    if (preserve && prevWheel && wheels[prevWheel]) wheelsEl.value = prevWheel;
+    if (preserve && prevInterior && interiors[prevInterior]) interiorEl.value = prevInterior;
+
+    if (!wheelsEl.value && wheelsEl.options.length) wheelsEl.selectedIndex = 0;
+    if (!interiorEl.value && interiorEl.options.length) interiorEl.selectedIndex = 0;
+    renderSwatches(interiorEl, interiorSwatchesEl, INTERIOR_SWATCHES);
   }
 
   function buildUrl({ bgOverride } = {}) {
+    const m = MODELS[currentModelKey];
     const trim = trimEl.value;
     const paint = paintEl.value;
     const view = viewEl.value;
@@ -257,31 +451,36 @@
     sizeEl.value = size;
 
     let options = [];
-    if (view === "INTERIOR") {
+    if (m.hasSteering && view === m.interiorViewKey) {
       options = [trim, paint, interiorEl.value, steeringEl.value];
     } else {
       options = [trim, paint, wheelsEl.value, interiorEl.value];
     }
 
     const params = new URLSearchParams();
-    params.set("context", FIXED.context);
+    params.set("context", m.fixed.context);
     params.set("options", options.join(","));
     params.set("view", view);
-    params.set("model", FIXED.model);
+    params.set("model", m.fixed.model);
     params.set("size", size);
     params.set("bkba_opt", String(bg));
-    params.set("crop", FIXED.crop);
-    params.set("overlay", FIXED.overlay);
+    params.set("crop", m.fixed.crop);
+    params.set("overlay", m.fixed.overlay);
 
     return `${BASE}?${params.toString()}`;
   }
 
   function updateUI() {
+    const m = MODELS[currentModelKey];
     const view = viewEl.value;
-    steeringWrap.style.display = (view === "INTERIOR") ? "block" : "none";
+    titleEl.textContent = `Tesla ${m.label} Config Decoder (Unofficial)`;
+    subtitleEl.textContent = `Build a Tesla image URL that matches your ${m.label} config. Uses Tesla's public compositor endpoint. No login. No guarantees.`;
+    steeringWrap.style.display = (m.hasSteering && view === m.interiorViewKey) ? "block" : "none";
 
     const url = buildUrl();
     urlBox.textContent = url;
+    updateSwatchSelection(paintEl, paintSwatchesEl);
+    updateSwatchSelection(interiorEl, interiorSwatchesEl);
 
     preview.referrerPolicy = "no-referrer";
     preview.src = url;
@@ -290,7 +489,7 @@
   async function copy(text) {
     try {
       await navigator.clipboard.writeText(text);
-      setToast("Copied ✅");
+      setToast("Copied");
     } catch {
       setToast("Copy failed (browser permissions).");
     }
@@ -309,13 +508,17 @@
 
   [trimEl, paintEl, wheelsEl, interiorEl, viewEl, bgEl, steeringEl, sizeEl].forEach(x => {
     x.addEventListener("change", () => {
-      if (x === trimEl) refreshTrimScopedOptions();
+      if (x === trimEl) refreshTrimScopedOptions({ preserve: true });
       updateUI();
     });
     x.addEventListener("input", () => {
       if (x === sizeEl) updateUI();
     });
   });
+
+  modelEl.addEventListener("change", () => applyModel(modelEl.value));
+  prevViewEl.addEventListener("click", () => cycleView(-1));
+  nextViewEl.addEventListener("click", () => cycleView(1));
 
   el("copyUrl").addEventListener("click", () => copy(urlBox.textContent));
   el("openUrl").addEventListener("click", () => window.open(urlBox.textContent, "_blank", "noopener,noreferrer"));
@@ -334,20 +537,43 @@
     copy(out);
   });
 
-  fillSelect(trimEl, TRIMS);
-  fillSelect(paintEl, PAINTS);
-  fillSelect(viewEl, VIEWS);
-  fillSelect(steeringEl, STEERING);
+  function applyModel(modelKey) {
+    currentModelKey = MODELS[modelKey] ? modelKey : "ms";
+    modelEl.value = currentModelKey;
+    const m = MODELS[currentModelKey];
 
-  trimEl.value = "$MTS23";
-  paintEl.value = "$PN02";
-  viewEl.value = "FRONT34";
-  bgEl.value = "2";
-  sizeEl.value = "1920";
-  steeringEl.value = "$ST06";
+    fillSelect(trimEl, m.trims);
+    fillSelect(paintEl, m.paints);
+    fillSelect(viewEl, m.views);
+    renderSwatches(paintEl, paintSwatchesEl, PAINT_SWATCHES);
 
-  refreshTrimScopedOptions();
-  updateUI();
+    if (m.hasSteering && m.steering) {
+      fillSelect(steeringEl, m.steering);
+    } else {
+      steeringEl.innerHTML = "";
+    }
+
+    trimEl.value = m.defaults.trim;
+    paintEl.value = m.defaults.paint;
+    viewEl.value = m.defaults.view;
+    bgEl.value = m.defaults.bg;
+    sizeEl.value = m.defaults.size;
+    if (m.hasSteering && m.defaults.steering) steeringEl.value = m.defaults.steering;
+
+    refreshTrimScopedOptions({ preserve: false });
+    updateUI();
+  }
+
+  function cycleView(step) {
+    const total = viewEl.options.length;
+    if (!total) return;
+    const start = viewEl.selectedIndex >= 0 ? viewEl.selectedIndex : 0;
+    const next = (start + step + total) % total;
+    viewEl.selectedIndex = next;
+    updateUI();
+  }
+
+  applyModel(modelEl.value || "ms");
 })();
 </script>
 </body>

@@ -1,52 +1,119 @@
 # Tesla Vehicle Config Decoder
 
-This is an **unofficial** helper to generate Tesla image-compositor URLs for supported Model S, Model 3, and Model Y configurations. It lets you pick trim, paint, wheels, interior, view, and background, then builds a URL that you can use anywhere a direct image link is helpful, including a webpage or Home Assistant dashboard. It is a static web app that runs entirely in your browser with no login and no server-side code.
+An unofficial static web app for generating Tesla image-compositor URLs for supported Model S, Model 3, and Model Y configurations.
+
+The app lets you choose a model, year bucket, trim, paint, wheels, interior, steering, and view, then builds a direct Tesla compositor URL with a live preview. It is designed for owners who want a stable image URL for dashboards, automations, documentation, or personal use without needing to decode Tesla option tokens by hand.
 
 Live configurator: [tn9design.github.io/tesla-vehicle-config-decoder](http://tn9design.github.io/tesla-vehicle-config-decoder/)
 
-**Note:** This project is not affiliated with or endorsed by Tesla. “Tesla”, “Model S”, “Model 3”, and “Model Y” are trademarks of Tesla, Inc.
+This project is not affiliated with or endorsed by Tesla. “Tesla”, “Model S”, “Model 3”, and “Model Y” are trademarks of Tesla, Inc.
+
+## Project status
+
+- Static single-file app with no backend
+- Supports modern and verified legacy Tesla compositor profiles where testing confirmed the renders
+- Focuses on real renderable combinations, not a speculative catalog of every community-known option code
 
 ## Features
 
-- Switch between supported Model S, Model 3, and Model Y configurations
-- Choose year buckets where verified legacy Tesla compositor profiles are available
-- Select trim, paint, wheels, interior, steering, and view with trim-scoped option lists
-- Jump automatically to wheel or interior views when changing wheel or cabin-related options
-- Add extra comma-separated option tokens for packages not surfaced in the dropdowns
-- Generate Tesla compositor URLs with live image preview
-- Copy the raw image URL or a Home Assistant YAML snippet
-- Open a help modal with instructions for submitting unsupported Tesla config URLs
+- Supports Model S, Model 3, and Model Y
+- Includes verified year buckets for legacy compositor profiles
+- Uses trim-scoped paint, wheel, and interior option sets
+- Automatically switches to wheel or interior views when those selections change
+- Supports steering options on Model S, including legacy exterior-compatible steering tokens
+- Generates direct Tesla compositor image URLs with live preview
+- Copies raw URLs and Home Assistant YAML snippets
+- Includes a help flow for submitting unsupported Tesla config URLs
 
-## Usage
+## Quick start
 
-This is a static HTML file. To run it locally:
+### Use the hosted app
 
-1. Download the `index.html` file from this repository.
-2. Open it in any modern web browser (Chrome, Firefox, Safari, Edge).
-3. Choose your desired configuration; the app will update the URL and preview automatically.
-4. Click `Copy URL` to copy the image URL or `Copy HA YAML` to copy a snippet for Home Assistant.
+Open the live configurator:
 
-You can also host it as a GitHub Pages site, or on any static hosting, by uploading the file as-is and enabling your preferred static hosting flow.
+[http://tn9design.github.io/tesla-vehicle-config-decoder/](http://tn9design.github.io/tesla-vehicle-config-decoder/)
 
-### Home Assistant example
+### Run locally
 
-After generating a URL, the `Copy HA YAML` button gives you a ready-to-paste snippet. It looks like this:
+1. Clone or download this repository.
+2. Open [`index.html`](index.html) in any modern browser.
+3. Choose a supported model and year profile.
+4. Adjust the configuration until the preview matches your car.
+5. Copy the generated URL or Home Assistant YAML.
 
+Because the app is fully static, there is no build step and no dependency installation.
+
+## How it works
+
+Tesla exposes public image compositor endpoints that accept vehicle option codes in the query string. This project maps verified option-code combinations into a friendlier interface and assembles the correct URL format for the active model profile.
+
+The app currently uses both:
+
+- `https://static-assets.tesla.com/configurator/compositor`
+- `https://static-assets.tesla.com/v1/compositor/`
+
+Which endpoint is used depends on the selected vehicle profile.
+
+## Supported profiles
+
+Only profiles that were checked against Tesla's live compositor are exposed in the UI.
+
+| Model | Year label in app | Endpoint family | Notes |
+| --- | --- | --- | --- |
+| Model S | `2024-2026` | `configurator/compositor` | Current/modern profile |
+| Model S | `2021-2023` | `v1/compositor` | Legacy refresh-era profile with verified Plaid carbon interior variants |
+| Model 3 | `2024-2026` | `configurator/compositor` | Current/modern profile |
+| Model 3 | `2018-2020` | `configurator/compositor` | Verified legacy profile using older view names |
+| Model Y | `2025-2026` | `configurator/compositor` | Current/modern profile |
+| Model Y | `2020-2024` | `v1/compositor` | Verified legacy profile |
+
+## What is intentionally conservative
+
+This project does not try to expose every Tesla token found on the internet.
+
+- Tokens are added to the UI only after the compositor actually renders them cleanly.
+- Some Tesla URLs include package or metadata tokens that do not appear to change the rendered image. Those are not promoted into first-class controls unless they prove visually meaningful.
+- Some options are documented as bundled combinations because Tesla only rendered them reliably together in testing.
+
+That conservative approach is deliberate. It keeps the app from generating misleading or broken URLs.
+
+## Missing options and unsupported vehicles
+
+If your exact vehicle options are not shown in the app:
+
+1. Open the live configurator and click the help link in the `Extra option codes` section.
+2. Copy the Tesla image/config URL from your Tesla account or pre-owned inventory image.
+3. Open a GitHub issue and paste the full URL along with your model, year, trim, and any details that matter.
+
+The app includes a built-in issue template flow for this.
+
+## Home Assistant example
+
+The `Copy HA YAML` button generates a snippet like this:
+
+```yaml
+type: picture
+image: "https://static-assets.tesla.com/configurator/compositor?context=design_studio_2&options=$MTS23,$PN02,$WS14,$IWC02&view=FRONT34&model=ms&size=1920&bkba_opt=2&crop=0,0,0,0&overlay=0"
+tap_action:
+  action: url
+  url_path: "https://static-assets.tesla.com/configurator/compositor?context=design_studio_2&options=$MTS23,$PN02,$WS14,$IWC02&view=FRONT34&model=ms&size=1920&bkba_opt=2&crop=0,0,0,0&overlay=0"
 ```
- type: picture  
- image: "https://static-assets.tesla.com/configurator/compositor?context=design_studio_2&options=$MTS23,$PN02,$WS14,$IWC02&view=FRONT34&model=ms&size=1920&bkba_opt=2&crop=0,0,0,0&overlay=0"  
- tap_action:  
-   action: url  
-   url_path: "https://static-assets.tesla.com/configurator/compositor?context=design_studio_2&options=$MTS23,$PN02,$WS14,$IWC02&view=FRONT34&model=ms&size=1920&bkba_opt=2&crop=0,0,0,0&overlay=0"  
-```
 
-Paste this into your Lovelace dashboard YAML to display your car and allow tapping to open the image in a new tab.
+Paste that into a Lovelace dashboard to display the car image and open the direct Tesla image when tapped.
+
+## Repository layout
+
+| File | Purpose |
+| --- | --- |
+| [`index.html`](index.html) | Entire app: markup, styles, data, and JavaScript logic |
+| [`README.md`](README.md) | Project documentation |
+| [`LICENSE`](LICENSE) | MIT license |
 
 ## Option Code Reference
 
-This section documents codes that are currently supported in the app or intentionally passed through for known Tesla configs. The goal is to keep this list limited to tokens that have been verified in Tesla's compositor URLs, not every community-documented option code.
+This section documents codes that are currently supported in the app or intentionally preserved for known Tesla configs. It is not meant to be an exhaustive Tesla option-code database.
 
-Some entries are single tokens. Others are bundled combinations because Tesla only rendered them reliably together in testing, and the UI keeps those combinations intact.
+Some entries are single tokens. Others are bundled combinations because Tesla only rendered them reliably together in testing, and the UI preserves those combinations.
 
 <details>
 <summary><strong>Model S</strong></summary>
@@ -326,12 +393,22 @@ Some entries are single tokens. Others are bundled combinations because Tesla on
 
 </details>
 
-### Notes
+## Limitations
 
-- Codes are only promoted into the UI after they have been checked against Tesla's compositor output.
-- Some valid Tesla URLs include metadata or package tokens that do not appear to change the rendered image. Those may still be preserved in `Extra option codes`.
-- Bundled code combinations such as `$W32B,$SLR1` or `$IN3PW,$PFP31` are documented that way because the app intentionally keeps those pairs together.
+- Tesla can change or rate-limit its image endpoints at any time.
+- Some real Tesla build codes do not appear to affect rendered images.
+- Not every historical Tesla variant is supported yet.
+- Older unsupported vehicles may require new year buckets rather than a few extra tokens.
+
+## Contributing
+
+Issues and pull requests are welcome, especially when they include:
+
+- a real Tesla compositor or inventory image URL
+- the exact model and approximate year
+- the expected trim, wheels, paint, and interior
+- a note about what the app currently gets wrong
 
 ## License
 
-This code is provided under the MIT License. See `LICENSE` for details. Use at your own risk and respect Tesla's terms of service when calling Tesla endpoints.
+This project is released under the MIT License. See [`LICENSE`](LICENSE) for details.

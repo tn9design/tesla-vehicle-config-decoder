@@ -10,7 +10,9 @@
     :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
     *, *::before, *::after { box-sizing: border-box; }
     body { margin: 0; padding: 20px; background: #0b0b0c; color: #f2f2f2; }
+    a { color: #cfd6ff; }
     h1 { margin: 0 0 8px; font-size: 20px; }
+    h2 { margin: 0; font-size: 14px; }
     p { margin: 6px 0 14px; color: #bdbdbd; line-height: 1.35; }
     .wrap { display: grid; grid-template-columns: 360px 1fr; gap: 16px; align-items: start; }
     @media (max-width: 900px){ .wrap { grid-template-columns: 1fr; } }
@@ -18,6 +20,12 @@
       * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
     }
     .card { background: #121214; border: 1px solid #222228; border-radius: 14px; padding: 14px; }
+    .card-title { margin-bottom: 6px; }
+    .card-intro {
+      margin: 0 0 12px;
+      font-size: 12px;
+      color: #9ea3ad;
+    }
     label { display: block; font-size: 12px; color: #bdbdbd; margin: 10px 0 6px; }
     select, input[type="number"], input[type="text"] {
       width: 100%; height: 38px; padding: 8px 12px; line-height: 20px; border-radius: 10px;
@@ -194,14 +202,23 @@
     .modal-card a {
       color: #cfd6ff;
     }
+    .notes-list {
+      margin: 8px 0 0 16px;
+      padding: 0;
+    }
+    .notes-list li + li {
+      margin-top: 6px;
+    }
   </style>
 </head>
 <body>
   <h1 id="title">Tesla Vehicle Config Decoder (Unofficial)</h1>
   <p id="subtitle">Build a Tesla image URL that matches your vehicle config. Uses Tesla's public compositor endpoint. No login. No guarantees.</p>
 
-  <div class="wrap">
-    <div class="card">
+  <main class="wrap">
+    <section class="card" aria-labelledby="configuratorHeading">
+      <h2 id="configuratorHeading" class="card-title">Configurator</h2>
+      <p class="card-intro">Choose a supported Tesla profile and the app will assemble a direct compositor URL with a live preview.</p>
       <div class="row">
         <div>
           <label for="model">Model</label>
@@ -275,7 +292,7 @@
 
       <div class="divider"></div>
 
-      <label>Generated URL</label>
+      <h2 class="card-title">Generated URL</h2>
       <div id="url" class="urlbox"></div>
 
       <div class="btnrow">
@@ -293,7 +310,7 @@
       <div class="divider"></div>
       <div class="small">
         Notes:
-        <ul>
+        <ul class="notes-list">
           <li>Use "2021-2023 legacy visuals" for old `v1/compositor` angles like `STUD_3QTR_V2`.</li>
           <li>Use "Extra option codes" for packages not shown in dropdowns (for example: `$APF2,$APBS`).</li>
           <li>Accessories (Home Charger, liners, etc.) do not affect the render URL.</li>
@@ -301,9 +318,11 @@
           <li>Modern Model S steering only affects INTERIOR view; legacy Model S steering can affect exterior renders too.</li>
         </ul>
       </div>
-    </div>
+    </section>
 
-    <div class="card">
+    <section class="card" aria-labelledby="previewHeading">
+      <h2 id="previewHeading" class="card-title">Preview</h2>
+      <p class="card-intro">Use the arrows to move between available views for the active model profile.</p>
       <div class="preview-wrap">
         <button id="prevView" class="preview-nav prev" aria-label="Previous view">&#x2039;</button>
         <img id="preview" class="preview" alt="Preview" />
@@ -312,16 +331,16 @@
       <p class="muted" style="margin-top:10px;">
         If the preview does not load, Tesla may be rate-limiting or the endpoint may have changed.
       </p>
-    </div>
-  </div>
+    </section>
+  </main>
 
   <div id="helpModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="helpModalTitle">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="helpModalTitle" aria-describedby="helpModalBody">
       <div class="modal-head">
         <h2 id="helpModalTitle">Send Us Your Tesla Config URL</h2>
         <button id="closeHelpModal" class="icon-btn" type="button" aria-label="Close help dialog">&times;</button>
       </div>
-      <p>If your exact model-year options are missing here, the fastest way to help expand support is to send the Tesla image/config URL for your car.</p>
+      <p id="helpModalBody">If your exact model-year options are missing here, the fastest way to help expand support is to send the Tesla image/config URL for your car.</p>
       <ol>
         <li>Log in to your Tesla account at <a href="https://www.tesla.com/teslaaccount" target="_blank" rel="noopener noreferrer">tesla.com/teslaaccount</a>.</li>
         <li>Open your vehicle details or any place Tesla shows the image/config thumbnail for that car.</li>

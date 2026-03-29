@@ -19,6 +19,7 @@ This is an **unofficial** helper to generate Tesla’s image-compositor URLs for
 - Toggle studio/transparent URLs for dark/light use  
 - Switch Model S between refresh visuals and 2021-2023 legacy `v1/compositor` visuals  
 - Add extra Tesla option tokens for older builds that expose packages outside the dropdowns  
+- Switch Model 3 between current visuals and a verified 2018-2020 legacy profile  
 
 ## Usage  
 

@@ -331,42 +331,85 @@
     },
     m3: {
       label: "Model 3",
-      base: "https://static-assets.tesla.com/configurator/compositor",
-      fixed: { context: "design_studio_2", model: "m3", crop: "0,0,0,0", overlay: "0" },
-      trims: {
-        "$MT367": "Rear-Wheel Drive",
-        "$MT369": "Rear-Wheel Drive (Premium)",
-        "$MT370": "All-Wheel Drive (Premium)",
-        "$MT371": "Performance (AWD)"
+      profiles: {
+        modern: {
+          label: "2024-2026",
+          base: "https://static-assets.tesla.com/configurator/compositor",
+          fixed: { context: "design_studio_2", model: "m3", crop: "0,0,0,0", overlay: "0" },
+          trims: {
+            "$MT367": "Rear-Wheel Drive",
+            "$MT369": "Rear-Wheel Drive (Premium)",
+            "$MT370": "All-Wheel Drive (Premium)",
+            "$MT371": "Performance (AWD)"
+          },
+          paints: {
+            "$PN01": "Stealth Grey",
+            "$PPSW": "Pearl White Multi-Coat",
+            "$PPSB": "Deep Blue Metallic",
+            "$PX02": "Diamond Black",
+            "$PR01": "Ultra Red",
+            "$PN00": "Quicksilver"
+          },
+          views: {
+            "STUD_FRONT34": "Front 3/4",
+            "STUD_REAR34": "Rear 3/4",
+            "STUD_SIDE": "Side Profile",
+            "STUD_RIMCLOSEUP": "Wheel Close-Up"
+          },
+          hasSteering: false,
+          wheelsByTrim: {
+            "$MT367": { "$W38C": '18" Prismata', "$W39G": '19" Nova' },
+            "$MT369": { "$W38A": '18" Prismata', "$W39G": '19" Nova' },
+            "$MT370": { "$W38A": '18" Prismata', "$W39G": '19" Nova' },
+            "$MT371": { "$W30A": '20" Warp' }
+          },
+          interiorsByTrim: {
+            "$MT367": { "$IBB4": "All Black" },
+            "$MT369": { "$IPB2": "All Black", "$IPW2": "Black & White" },
+            "$MT370": { "$IPB3": "All Black", "$IPW3": "Black & White" },
+            "$MT371": { "$IPB4": "All Black", "$IPW4": "Black & White" }
+          },
+          defaults: { trim: "$MT367", paint: "$PN01", view: "STUD_FRONT34", bg: "1", size: "1920" }
+        },
+        legacy2018: {
+          label: "2018-2020",
+          base: "https://static-assets.tesla.com/configurator/compositor",
+          fixed: { model: "m3", version: "0.0.25" },
+          trims: {
+            "$MT301": "Standard Range Plus RWD",
+            "$MT310": "Long Range AWD",
+            "$MT311": "Performance AWD"
+          },
+          paints: {
+            "$PPSW": "Pearl White Multi-Coat",
+            "$PBSB": "Solid Black",
+            "$PMNG": "Midnight Silver Metallic",
+            "$PPSB": "Deep Blue Metallic",
+            "$PPMR": "Red Multi-Coat",
+            "$PMSS": "Silver Metallic"
+          },
+          views: {
+            "STUD_3QTR": "Front 3/4",
+            "STUD_REAR": "Rear 3/4",
+            "STUD_SIDE": "Side Profile",
+            "STUD_WHEEL": "Wheel Close-Up",
+            "STUD_SEAT": "Interior Cabin"
+          },
+          hasSteering: false,
+          wheelsByTrim: {
+            "$MT301": { "$W38B": '18" Aero', "$W39B": '19" Sport' },
+            "$MT310": { "$W38B": '18" Aero', "$W39B": '19" Sport' },
+            "$MT311": { "$W32B,$SLR1": '20" Sport', "$W32D,$SLR1": '20" Gray Sport' }
+          },
+          interiorsByTrim: {
+            "$MT301": { "$IN3PB": "All Black", "$IN3PW,$PFP31": "Black & White" },
+            "$MT310": { "$IN3PB": "All Black", "$IN3PW,$PFP31": "Black & White" },
+            "$MT311": { "$IN3PB": "All Black", "$IN3PW,$PFP31": "Black & White" }
+          },
+          defaults: { trim: "$MT310", paint: "$PPSW", view: "STUD_3QTR", bg: "1", size: "1920" }
+        }
       },
-      paints: {
-        "$PN01": "Stealth Grey",
-        "$PPSW": "Pearl White Multi-Coat",
-        "$PPSB": "Deep Blue Metallic",
-        "$PX02": "Diamond Black",
-        "$PR01": "Ultra Red",
-        "$PN00": "Quicksilver"
-      },
-      views: {
-        "STUD_FRONT34": "Front 3/4",
-        "STUD_REAR34": "Rear 3/4",
-        "STUD_SIDE": "Side Profile",
-        "STUD_RIMCLOSEUP": "Wheel Close-Up"
-      },
-      hasSteering: false,
-      wheelsByTrim: {
-        "$MT367": { "$W38C": '18" Prismata', "$W39G": '19" Nova' },
-        "$MT369": { "$W38A": '18" Prismata', "$W39G": '19" Nova' },
-        "$MT370": { "$W38A": '18" Prismata', "$W39G": '19" Nova' },
-        "$MT371": { "$W30A": '20" Warp' }
-      },
-      interiorsByTrim: {
-        "$MT367": { "$IBB4": "All Black" },
-        "$MT369": { "$IPB2": "All Black", "$IPW2": "Black & White" },
-        "$MT370": { "$IPB3": "All Black", "$IPW3": "Black & White" },
-        "$MT371": { "$IPB4": "All Black", "$IPW4": "Black & White" }
-      },
-      defaults: { trim: "$MT367", paint: "$PN01", view: "STUD_FRONT34", bg: "1", size: "1920" }
+      defaultProfile: "modern"
     },
     my: {
       label: "Model Y",
@@ -511,11 +554,13 @@
   function getWheelViewKey(cfg) {
     if (cfg.views?.RIMCLOSEUP) return "RIMCLOSEUP";
     if (cfg.views?.STUD_RIMCLOSEUP) return "STUD_RIMCLOSEUP";
+    if (cfg.views?.STUD_WHEEL) return "STUD_WHEEL";
     return "";
   }
 
   function getInteriorViewKey(cfg) {
     if (cfg.interiorViewKey && cfg.views?.[cfg.interiorViewKey]) return cfg.interiorViewKey;
+    if (cfg.views?.STUD_SEAT) return "STUD_SEAT";
     if (cfg.views?.STUD_INTERIOR) return "STUD_INTERIOR";
     if (cfg.views?.INTERIOR) return "INTERIOR";
     return "";
@@ -717,6 +762,7 @@
     if (cfg.fixed.context) params.set("context", cfg.fixed.context);
     if (cfg.fixed.crop) params.set("crop", cfg.fixed.crop);
     if (cfg.fixed.overlay) params.set("overlay", cfg.fixed.overlay);
+    if (cfg.fixed.version) params.set("version", cfg.fixed.version);
 
     return `${cfg.base}?${params.toString()}`;
   }

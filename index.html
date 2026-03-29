@@ -26,6 +26,11 @@
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .row > div { min-width: 0; }
     .fullrow { margin-top: 10px; }
+    .card > * + .row,
+    .card > * + .fullrow,
+    .card > * + #steeringWrap {
+      margin-top: 14px;
+    }
     button {
       width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid #2a2a33;
       background: #1b1b22; color: #f2f2f2; cursor: pointer;
@@ -244,6 +249,7 @@
       <div class="fullrow">
         <label for="extraOptions">Extra option codes (comma separated)</label>
         <input id="extraOptions" type="text" placeholder="$APF2,$APBS,$SC04,$CPF1" />
+        <button id="missingOptionsHelp" class="help-link" type="button">Your model's options not shown here?</button>
       </div>
 
       <div id="steeringWrap" style="display:none;">
@@ -270,7 +276,6 @@
       <div class="divider"></div>
 
       <label>Generated URL</label>
-      <button id="missingOptionsHelp" class="help-link" type="button">Your model's options not shown here?</button>
       <div id="url" class="urlbox"></div>
 
       <div class="btnrow">
@@ -417,8 +422,7 @@
             view: "STUD_3QTR_V2",
             bg: "1",
             size: "1440",
-            steering: "$ST0Y",
-            extraOptions: "$APF2,$APBS,$SC04,$CPF1"
+            steering: "$ST0Y"
           }
         }
       },
@@ -974,10 +978,12 @@
 
   [trimEl, paintEl, wheelsEl, interiorEl, viewEl, bgEl, steeringEl, sizeEl, extraOptionsEl].forEach(x => {
     x.addEventListener("change", () => {
+      const cfg = getActiveConfig();
       if (x === trimEl) refreshTrimScopedOptions({ preserve: true });
       if (x === trimEl || x === paintEl) setRecommendedView("default");
       if (x === wheelsEl) setRecommendedView("wheel");
-      if (x === interiorEl || x === steeringEl) setRecommendedView("interior");
+      if (x === interiorEl) setRecommendedView("interior");
+      if (x === steeringEl && cfg.steeringPlacement === "interiorOnly") setRecommendedView("interior");
       updateUI();
     });
     x.addEventListener("input", () => {

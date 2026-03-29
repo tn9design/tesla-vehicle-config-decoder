@@ -2,6 +2,8 @@
 
 This is an **unofficial** helper to generate Tesla image-compositor URLs for supported Model S, Model 3, and Model Y configurations. It lets you pick trim, paint, wheels, interior, view, and background, then builds a URL that you can use anywhere a direct image link is helpful, including a webpage or Home Assistant dashboard. It is a static web app that runs entirely in your browser with no login and no server-side code.
 
+Live configurator: [tn9design.github.io/tesla-vehicle-config-decoder](http://tn9design.github.io/tesla-vehicle-config-decoder/)
+
 **Note:** This project is not affiliated with or endorsed by Tesla. “Tesla”, “Model S”, “Model 3”, and “Model Y” are trademarks of Tesla, Inc.
 
 ## Features

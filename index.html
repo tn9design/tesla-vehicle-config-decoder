@@ -262,7 +262,10 @@
           label: "2021-2023",
           base: "https://static-assets.tesla.com/v1/compositor/",
           fixed: { model: "ms", modelOption: "$MDLS" },
-          trims: { "$MTS13": "Dual Motor / Plaid (legacy token)" },
+          trims: {
+            "$MTS13": "Dual Motor AWD",
+            "$MTS14": "Plaid"
+          },
           paints: {
             "$PBSB": "Solid Black",
             "$PPSW": "Pearl White Multi-Coat",
@@ -281,10 +284,12 @@
           hasSteering: true,
           steeringPlacement: "always",
           wheelsByTrim: {
-            "$MTS13": { "$WS90": '19" Tempest', "$WS11": '21" Arachnid' }
+            "$MTS13": { "$WS90": '19" Tempest', "$WS11": '21" Arachnid' },
+            "$MTS14": { "$WS90": '19" Tempest', "$WS11": '21" Arachnid' }
           },
           interiorsByTrim: {
-            "$MTS13": { "$IBE00": "All Black", "$IWW00": "Black & White", "$ICW00": "Cream" }
+            "$MTS13": { "$IBE00": "All Black", "$IWW00": "Black & White", "$ICW00": "Cream" },
+            "$MTS14": { "$IBE00": "All Black", "$IWW00": "Black & White", "$ICW00": "Cream" }
           },
           defaults: {
             trim: "$MTS13",

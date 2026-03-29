@@ -252,6 +252,7 @@ Some entries are single tokens. Others are bundled combinations because Tesla on
 | Code | Description |
 | --- | --- |
 | `$WX02` | 20" Perihelix |
+| `$WX23` | 22" Machina |
 
 #### Interior
 
@@ -276,7 +277,7 @@ Current UI note:
 
 - All-Wheel Drive exposes five-, six-, and seven-seat layouts.
 - Plaid is currently restricted to six-seat layout.
-- Current `22" Machina` wheel name is known from Tesla's UI, but the verified current wheel token is still pending, so the app currently exposes only the verified `20" Perihelix` token for current Model X.
+- Current `22" Machina` is verified as `$WX23`.
 
 #### Steering
 

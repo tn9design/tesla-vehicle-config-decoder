@@ -8,7 +8,9 @@ This is an **unofficial** helper to generate Tesla’s image-compositor URLs for
 
 - Select trim (Dual Motor or Plaid)  
 - Select paint, wheels and interior (with trim‑specific options)  
+- Switch between modern visuals and legacy 2021-2023 `v1/compositor` visuals (Model S)  
 - Choose camera angles: Front 3/4, Rear 3/4, Side profile, Rim close‑up, or Interior  
+- Add extra comma-separated option tokens for older packages not surfaced in the dropdowns  
 - Choose background: studio or transparent  
 - Generate the URL for Tesla’s compositor endpoint  
 - Live preview of the image  

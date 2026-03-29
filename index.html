@@ -126,6 +126,10 @@
           <select id="trim"></select>
         </div>
       </div>
+      <div class="fullrow">
+        <label for="profile">Visual/Profile</label>
+        <select id="profile"></select>
+      </div>
 
       <div class="fullrow">
         <label for="paint">Paint</label>
@@ -159,6 +163,11 @@
         </div>
       </div>
 
+      <div class="fullrow">
+        <label for="extraOptions">Extra option codes (comma separated)</label>
+        <input id="extraOptions" type="text" placeholder="$APF2,$APBS,$SC04,$CPF1" />
+      </div>
+
       <select id="view" class="visually-hidden" aria-hidden="true"></select>
 
       <div id="steeringWrap" style="display:none;">
@@ -187,6 +196,8 @@
       <div class="small">
         Notes:
         <ul>
+          <li>Use "2021-2023 legacy visuals" for old `v1/compositor` angles like `STUD_3QTR_V2`.</li>
+          <li>Use "Extra option codes" for packages not shown in dropdowns (for example: `$APF2,$APBS`).</li>
           <li>Accessories (Home Charger, liners, etc.) do not affect the render URL.</li>
           <li>Wheels and interiors can be trim-scoped (options change by trim).</li>
           <li>Model S steering code only appears in INTERIOR view.</li>
@@ -208,43 +219,84 @@
 
 <script>
 (() => {
-  const BASE = "https://static-assets.tesla.com/configurator/compositor";
-
   const MODELS = {
     ms: {
       label: "Model S",
-      fixed: { context: "design_studio_2", model: "ms", crop: "0,0,0,0", overlay: "0" },
-      trims: { "$MTS22": "Dual Motor AWD", "$MTS23": "Plaid" },
-      paints: {
-        "$PN01": "Stealth Grey",
-        "$PPSW": "Pearl White Multi-Coat",
-        "$PX02": "Diamond Black",
-        "$PB00": "Frost Blue Metallic",
-        "$PR01": "Ultra Red",
-        "$PN02": "Lunar Silver"
+      profiles: {
+        modern: {
+          label: "2024+ Refresh visuals",
+          base: "https://static-assets.tesla.com/configurator/compositor",
+          fixed: { context: "design_studio_2", model: "ms", crop: "0,0,0,0", overlay: "0" },
+          trims: { "$MTS22": "Dual Motor AWD", "$MTS23": "Plaid" },
+          paints: {
+            "$PN01": "Stealth Grey",
+            "$PPSW": "Pearl White Multi-Coat",
+            "$PX02": "Diamond Black",
+            "$PB00": "Frost Blue Metallic",
+            "$PR01": "Ultra Red",
+            "$PN02": "Lunar Silver"
+          },
+          views: {
+            "FRONT34": "Front 3/4",
+            "REAR34": "Rear 3/4",
+            "SIDE": "Side Profile",
+            "RIMCLOSEUP": "Wheel Close-Up",
+            "INTERIOR": "Interior Cabin"
+          },
+          steering: { "$ST06": "Standard Steering Wheel", "$ST1Y": "Yoke Steering" },
+          hasSteering: true,
+          interiorViewKey: "INTERIOR",
+          wheelsByTrim: {
+            "$MTS22": { "$WS93": '19" Magnetite', "$WS13": '21" Velarium' },
+            "$MTS23": { "$WS94": '19" Magnetite', "$WS14": '21" Velarium' }
+          },
+          interiorsByTrim: {
+            "$MTS22": { "$IBE01": "All Black", "$IWW01": "Black & White", "$ICW01": "Cream" },
+            "$MTS23": { "$IBC02": "All Black", "$IWC02": "Black & White", "$ICC02": "Cream" }
+          },
+          defaults: { trim: "$MTS23", paint: "$PN02", view: "FRONT34", bg: "2", size: "1920", steering: "$ST06" }
+        },
+        legacy2021: {
+          label: "2021-2023 legacy visuals (v1)",
+          base: "https://static-assets.tesla.com/v1/compositor/",
+          fixed: { model: "ms", modelOption: "$MDLS" },
+          trims: { "$MTS13": "Dual Motor / Plaid (legacy token)" },
+          paints: {
+            "$PBSB": "Solid Black",
+            "$PPSW": "Pearl White Multi-Coat",
+            "$PPSB": "Deep Blue Metallic",
+            "$PMNG": "Midnight Silver Metallic",
+            "$PPMR": "Red Multi-Coat"
+          },
+          views: {
+            "STUD_3QTR_V2": "Front 3/4 (legacy)",
+            "STUD_REAR_3QTR_V2": "Rear 3/4 (legacy)",
+            "STUD_SIDE": "Side Profile (legacy)",
+            "STUD_WHEEL": "Wheel Close-Up (legacy)"
+          },
+          steering: { "$ST0Y": "Yoke Steering", "$ST00": "Round Steering Wheel" },
+          hasSteering: false,
+          wheelsByTrim: {
+            "$MTS13": { "$WS11": '21" Arachnid', "$WS10": '19" Tempest' }
+          },
+          interiorsByTrim: {
+            "$MTS13": { "$IWW00": "All Black", "$IAB0P": "Black & White", "$ICB0P": "Cream" }
+          },
+          defaults: {
+            trim: "$MTS13",
+            paint: "$PBSB",
+            view: "STUD_3QTR_V2",
+            bg: "1",
+            size: "1440",
+            extraOptions: "$APF2,$APBS,$SC04,$CPF1"
+          }
+        }
       },
-      views: {
-        "FRONT34": "Front 3/4",
-        "REAR34": "Rear 3/4",
-        "SIDE": "Side Profile",
-        "RIMCLOSEUP": "Wheel Close-Up",
-        "INTERIOR": "Interior Cabin"
-      },
-      steering: { "$ST06": "Standard Steering Wheel", "$ST1Y": "Yoke Steering" },
-      hasSteering: true,
-      interiorViewKey: "INTERIOR",
-      wheelsByTrim: {
-        "$MTS22": { "$WS93": '19" Magnetite', "$WS13": '21" Velarium' },
-        "$MTS23": { "$WS94": '19" Magnetite', "$WS14": '21" Velarium' }
-      },
-      interiorsByTrim: {
-        "$MTS22": { "$IBE01": "All Black", "$IWW01": "Black & White", "$ICW01": "Cream" },
-        "$MTS23": { "$IBC02": "All Black", "$IWC02": "Black & White", "$ICC02": "Cream" }
-      },
-      defaults: { trim: "$MTS23", paint: "$PN02", view: "FRONT34", bg: "2", size: "1920", steering: "$ST06" }
+      defaultProfile: "modern"
     },
     m3: {
       label: "Model 3",
+      base: "https://static-assets.tesla.com/configurator/compositor",
       fixed: { context: "design_studio_2", model: "m3", crop: "0,0,0,0", overlay: "0" },
       trims: {
         "$MT367": "Rear-Wheel Drive",
@@ -283,6 +335,7 @@
     },
     my: {
       label: "Model Y",
+      base: "https://static-assets.tesla.com/configurator/compositor",
       fixed: { context: "design_studio_2", model: "my", crop: "0,0,0,0", overlay: "0" },
       trims: {
         "$MTY61": "Rear-Wheel Drive",
@@ -328,6 +381,7 @@
   const titleEl = el("title");
   const subtitleEl = el("subtitle");
   const trimEl = el("trim");
+  const profileEl = el("profile");
   const paintEl = el("paint");
   const paintSwatchesEl = el("paintSwatches");
   const wheelsEl = el("wheels");
@@ -340,16 +394,21 @@
   const steeringWrap = el("steeringWrap");
   const steeringEl = el("steering");
   const sizeEl = el("size");
+  const extraOptionsEl = el("extraOptions");
   const modelEl = el("model");
   const urlBox = el("url");
   const preview = el("preview");
   const toast = el("toast");
   let currentModelKey = "ms";
+  let currentProfileKey = "";
   const PAINT_SWATCHES = {
     "$PN01": "linear-gradient(145deg, #555c65, #2f3338)",
     "$PPSW": "linear-gradient(145deg, #fcfcfc, #d5d5d5)",
     "$PX02": "linear-gradient(145deg, #272727, #080808)",
     "$PB00": "linear-gradient(145deg, #85a0ba, #4f6e8b)",
+    "$PBSB": "linear-gradient(145deg, #272727, #080808)",
+    "$PMNG": "linear-gradient(145deg, #666c75, #383d43)",
+    "$PPMR": "linear-gradient(145deg, #cc1f1f, #7d0f0f)",
     "$PPSB": "linear-gradient(145deg, #2c569f, #0d2b63)",
     "$PR01": "linear-gradient(145deg, #dc1f1f, #8e0f0f)",
     "$PN02": "linear-gradient(145deg, #dcdee2, #a8adb5)",
@@ -373,7 +432,10 @@
     "$IPW12": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$IPW14": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$ICW01": "#d8ccb5",
-    "$ICC02": "#d8ccb5"
+    "$ICC02": "#d8ccb5",
+    "$IWW00": "#1a1a1a",
+    "$IAB0P": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
+    "$ICB0P": "#d8ccb5"
   };
 
   function setToast(msg) {
@@ -389,6 +451,14 @@
       opt.textContent = label;
       select.appendChild(opt);
     });
+  }
+
+  function getActiveConfig() {
+    const modelConfig = MODELS[currentModelKey];
+    if (modelConfig.profiles) {
+      return modelConfig.profiles[currentProfileKey] || modelConfig.profiles[modelConfig.defaultProfile];
+    }
+    return modelConfig;
   }
 
   function renderSwatches(selectEl, swatchEl, paletteMap) {
@@ -420,10 +490,10 @@
   }
 
   function refreshTrimScopedOptions({ preserve = true } = {}) {
-    const m = MODELS[currentModelKey];
+    const cfg = getActiveConfig();
     const trim = trimEl.value;
-    const wheels = m.wheelsByTrim?.[trim] || {};
-    const interiors = m.interiorsByTrim?.[trim] || {};
+    const wheels = cfg.wheelsByTrim?.[trim] || {};
+    const interiors = cfg.interiorsByTrim?.[trim] || {};
 
     const prevWheel = wheelsEl.value;
     const prevInterior = interiorEl.value;
@@ -440,7 +510,7 @@
   }
 
   function buildUrl({ bgOverride } = {}) {
-    const m = MODELS[currentModelKey];
+    const cfg = getActiveConfig();
     const trim = trimEl.value;
     const paint = paintEl.value;
     const view = viewEl.value;
@@ -450,32 +520,40 @@
     const size = String(safeSize);
     sizeEl.value = size;
 
+    const cleanedExtras = extraOptionsEl.value
+      .split(",")
+      .map(code => code.trim())
+      .filter(Boolean);
+
     let options = [];
-    if (m.hasSteering && view === m.interiorViewKey) {
+    if (cfg.hasSteering && view === cfg.interiorViewKey) {
       options = [trim, paint, interiorEl.value, steeringEl.value];
     } else {
       options = [trim, paint, wheelsEl.value, interiorEl.value];
     }
+    if (cfg.fixed?.modelOption) options.unshift(cfg.fixed.modelOption);
+    options = options.concat(cleanedExtras);
 
     const params = new URLSearchParams();
-    params.set("context", m.fixed.context);
     params.set("options", options.join(","));
     params.set("view", view);
-    params.set("model", m.fixed.model);
+    params.set("model", cfg.fixed.model);
     params.set("size", size);
     params.set("bkba_opt", String(bg));
-    params.set("crop", m.fixed.crop);
-    params.set("overlay", m.fixed.overlay);
+    if (cfg.fixed.context) params.set("context", cfg.fixed.context);
+    if (cfg.fixed.crop) params.set("crop", cfg.fixed.crop);
+    if (cfg.fixed.overlay) params.set("overlay", cfg.fixed.overlay);
 
-    return `${BASE}?${params.toString()}`;
+    return `${cfg.base}?${params.toString()}`;
   }
 
   function updateUI() {
     const m = MODELS[currentModelKey];
+    const cfg = getActiveConfig();
     const view = viewEl.value;
     titleEl.textContent = `Tesla ${m.label} Config Decoder (Unofficial)`;
     subtitleEl.textContent = `Build a Tesla image URL that matches your ${m.label} config. Uses Tesla's public compositor endpoint. No login. No guarantees.`;
-    steeringWrap.style.display = (m.hasSteering && view === m.interiorViewKey) ? "block" : "none";
+    steeringWrap.style.display = (cfg.hasSteering && view === cfg.interiorViewKey) ? "block" : "none";
 
     const url = buildUrl();
     urlBox.textContent = url;
@@ -506,7 +584,7 @@
     ].join("\n");
   }
 
-  [trimEl, paintEl, wheelsEl, interiorEl, viewEl, bgEl, steeringEl, sizeEl].forEach(x => {
+  [trimEl, paintEl, wheelsEl, interiorEl, viewEl, bgEl, steeringEl, sizeEl, extraOptionsEl].forEach(x => {
     x.addEventListener("change", () => {
       if (x === trimEl) refreshTrimScopedOptions({ preserve: true });
       updateUI();
@@ -517,6 +595,7 @@
   });
 
   modelEl.addEventListener("change", () => applyModel(modelEl.value));
+  profileEl.addEventListener("change", () => applyProfile(profileEl.value));
   prevViewEl.addEventListener("click", () => cycleView(-1));
   nextViewEl.addEventListener("click", () => cycleView(1));
 
@@ -541,24 +620,46 @@
     currentModelKey = MODELS[modelKey] ? modelKey : "ms";
     modelEl.value = currentModelKey;
     const m = MODELS[currentModelKey];
+    if (m.profiles) {
+      fillSelect(profileEl, Object.fromEntries(Object.entries(m.profiles).map(([key, cfg]) => [key, cfg.label])));
+      profileEl.disabled = false;
+      applyProfile(m.defaultProfile);
+      return;
+    }
+    profileEl.innerHTML = "";
+    profileEl.disabled = true;
+    applyProfile("");
+  }
 
-    fillSelect(trimEl, m.trims);
-    fillSelect(paintEl, m.paints);
-    fillSelect(viewEl, m.views);
+  function applyProfile(profileKey) {
+    const modelConfig = MODELS[currentModelKey];
+    currentProfileKey = profileKey;
+    if (modelConfig.profiles) {
+      const fallbackKey = modelConfig.defaultProfile;
+      currentProfileKey = modelConfig.profiles[profileKey] ? profileKey : fallbackKey;
+      profileEl.value = currentProfileKey;
+    }
+
+    const cfg = getActiveConfig();
+
+    fillSelect(trimEl, cfg.trims);
+    fillSelect(paintEl, cfg.paints);
+    fillSelect(viewEl, cfg.views);
     renderSwatches(paintEl, paintSwatchesEl, PAINT_SWATCHES);
 
-    if (m.hasSteering && m.steering) {
-      fillSelect(steeringEl, m.steering);
+    if (cfg.hasSteering && cfg.steering) {
+      fillSelect(steeringEl, cfg.steering);
     } else {
       steeringEl.innerHTML = "";
     }
 
-    trimEl.value = m.defaults.trim;
-    paintEl.value = m.defaults.paint;
-    viewEl.value = m.defaults.view;
-    bgEl.value = m.defaults.bg;
-    sizeEl.value = m.defaults.size;
-    if (m.hasSteering && m.defaults.steering) steeringEl.value = m.defaults.steering;
+    trimEl.value = cfg.defaults.trim;
+    paintEl.value = cfg.defaults.paint;
+    viewEl.value = cfg.defaults.view;
+    bgEl.value = cfg.defaults.bg;
+    sizeEl.value = cfg.defaults.size;
+    extraOptionsEl.value = cfg.defaults.extraOptions || "";
+    if (cfg.hasSteering && cfg.defaults.steering) steeringEl.value = cfg.defaults.steering;
 
     refreshTrimScopedOptions({ preserve: false });
     updateUI();

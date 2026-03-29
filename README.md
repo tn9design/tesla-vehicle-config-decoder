@@ -232,8 +232,9 @@ Some entries are single tokens. Others are bundled combinations because Tesla on
 
 | Code | Description |
 | --- | --- |
-| `$MTX10` | All-Wheel Drive |
-| `$MTX14` | Plaid |
+| `$MDLX` | Model X identifier used in current compositor URLs |
+| `$MTX22` | All-Wheel Drive |
+| `$MTX23` | Plaid |
 
 #### Paint
 
@@ -250,15 +251,18 @@ Some entries are single tokens. Others are bundled combinations because Tesla on
 
 | Code | Description |
 | --- | --- |
-| `$WX00` | 20" Perihelix |
-| `$WX20` | 22" Machina |
+| `$WX02` | 20" Perihelix |
 
 #### Interior
 
 | Code | Description |
 | --- | --- |
-| `$INYPB` | All Black premium interior |
-| `$INYPW` | Black & White premium interior |
+| `$IBE01` | All Black - Ebony |
+| `$IWW01` | Black & White - Walnut |
+| `$ICW01` | Cream - Walnut |
+| `$IBC02` | All Black - Carbon |
+| `$IWC02` | Black & White - Carbon |
+| `$ICC02` | Cream - Carbon |
 
 #### Seating
 
@@ -272,13 +276,14 @@ Current UI note:
 
 - All-Wheel Drive exposes five-, six-, and seven-seat layouts.
 - Plaid is currently restricted to six-seat layout.
+- Current `22" Machina` wheel name is known from Tesla's UI, but the verified current wheel token is still pending, so the app currently exposes only the verified `20" Perihelix` token for current Model X.
 
 #### Steering
 
 | Code | Description |
 | --- | --- |
-| `$ST03` | Round Steering Wheel |
-| `$ST0Y` | Yoke Steering |
+| `$ST06` | Steering Wheel |
+| `$ST1Y` | Yoke Steering |
 
 ### Legacy Model X (`2021-2024`)
 

@@ -459,10 +459,10 @@
         modern: {
           label: "2025-2026",
           base: "https://static-assets.tesla.com/configurator/compositor",
-          fixed: { context: "design_studio_2", model: "mx", crop: "0,0,0,0", overlay: "0" },
+          fixed: { context: "design_studio_2", model: "mx", modelOption: "$MDLX", crop: "0,0,0,0", overlay: "0" },
           trims: {
-            "$MTX10": "All-Wheel Drive",
-            "$MTX14": "Plaid"
+            "$MTX22": "All-Wheel Drive",
+            "$MTX23": "Plaid"
           },
           paints: {
             "$PN01": "Stealth Grey",
@@ -479,7 +479,7 @@
             "RIMCLOSEUP": "Wheel Close-Up",
             "INTERIOR": "Interior Cabin"
           },
-          steering: { "$ST03": "Round Steering Wheel", "$ST0Y": "Yoke Steering" },
+          steering: { "$ST06": "Steering Wheel", "$ST1Y": "Yoke Steering" },
           hasSteering: true,
           steeringPlacement: "interiorOnly",
           interiorViewKey: "INTERIOR",
@@ -489,30 +489,30 @@
             "$STY7S": "Seven Seat"
           },
           layoutsByTrim: {
-            "$MTX10": {
+            "$MTX22": {
               "$STY5S": "Five Seat",
               "$SR04": "Six Seat",
               "$STY7S": "Seven Seat"
             },
-            "$MTX14": {
+            "$MTX23": {
               "$SR04": "Six Seat"
             }
           },
           wheelsByTrim: {
-            "$MTX10": { "$WX00": '20" Perihelix' },
-            "$MTX14": { "$WX00": '20" Perihelix', "$WX20": '22" Machina' }
+            "$MTX22": { "$WX02": '20" Perihelix' },
+            "$MTX23": { "$WX02": '20" Perihelix' }
           },
           interiorsByTrim: {
-            "$MTX10": { "$INYPB": "All Black - Ebony", "$INYPW": "Black & White - Walnut" },
-            "$MTX14": { "$INYPB": "All Black - Carbon", "$INYPW": "Black & White - Carbon" }
+            "$MTX22": { "$IBE01": "All Black - Ebony", "$IWW01": "Black & White - Walnut", "$ICW01": "Cream - Walnut" },
+            "$MTX23": { "$IBC02": "All Black - Carbon", "$IWC02": "Black & White - Carbon", "$ICC02": "Cream - Carbon" }
           },
           defaults: {
-            trim: "$MTX10",
+            trim: "$MTX22",
             paint: "$PN01",
             view: "FRONT34",
             bg: "1",
             size: "1920",
-            steering: "$ST03",
+            steering: "$ST06",
             layout: "$STY5S"
           }
         },

@@ -45,24 +45,38 @@ After generating a URL, the “Copy HA YAML” button gives you a ready-to-paste
 
 Paste this into your Lovelace dashboard YAML to display your car and allow tapping to open the image in a new tab.  
 
-## Option Code Reference (2021+ Model S)
+## Option Code Reference (Verified / In Progress)
 
 The latest generation of Tesla vehicles uses new one‑letter/number option tokens in the configurator URL. These tokens map to specific trim, paint and feature choices. The following table documents the tokens observed so far. If you discover new codes, feel free to extend this table.
 
 | Token    | Description                                                   |
 | -------- | ------------------------------------------------------------- |
 | `$MDLS`  | Vehicle model – Model S                                       |
-| `$MTS13` | Trim – Dual‑motor or Plaid (2021+ Model S refresh)            |
+| `$MTS13` | Trim – Dual Motor AWD (legacy 2021-2023 Model S visuals)      |
+| `$MTS14` | Trim – Plaid AWD (legacy 2021-2023 Model S visuals)           |
 | `$PBSB`  | Exterior colour – Solid Black                                 |
-| `$WS11`  | Wheels – 21″ Arachnid wheels                                  |
+| `$WS90`  | Wheels – 19″ Tempest wheels                                   |
+| `$WS11`  | Wheels – 21″ Arachnid wheels                                  |
 | `$APF2`  | Autopilot hardware 3.0 / Full Self‑Driving computer           |
 | `$APBS`  | Autopilot software base package                               |
 | `$SC04`  | Paid supercharging (no free credits)                          |
-| `$CPF1`  | Interior décor – Carbon‑fibre trim                            |
-| `$IWW00` | Interior colour – All‑black premium interior                  |
-| `$ST0Y`  | Steering – Yoke steering wheel (2021+ Model S)                |
+| `$IBE00` | Legacy interior – All Black with wood trim                    |
+| `$IWW00` | Legacy interior – Black & White with wood trim                |
+| `$ICW00` | Legacy interior – Cream with wood trim                        |
+| `$IBC00` | Legacy Plaid interior – All Black with carbon trim            |
+| `$IWC00` | Legacy Plaid interior – Black & White with carbon trim        |
+| `$ICC00` | Legacy Plaid interior – Cream with carbon trim                |
+| `$ST0Y`  | Steering – Yoke steering wheel                                |
+| `$CPF1`  | Candidate decor/package token, not verified as visually active|
 
-*Note:* Many of these codes are still being decoded by the community. Values labelled here are based on observed builds and may change over time.
+Verified findings from compositor testing:
+
+- Legacy Plaid (`$MTS14`) supports distinct carbon-trim interior tokens (`$IBC00`, `$IWC00`, `$ICC00`) in `STUD_INTERIOR` renders.
+- Legacy spoiler candidates (`$SLR0`, `$SLR1`) did not produce a visible change in tested rear renders.
+- Legacy brake caliper candidates (`$BC0B`, `$BC0R`) did not produce a visible change in tested wheel close-up renders.
+- Package tokens like `$APF2`, `$APBS`, and `$SC04` appear to be pass-through metadata for our use case rather than visible render toggles.
+
+*Note:* Many Tesla codes are still being decoded by the community, and the unofficial option-code list is only a hint source. We only promote tokens into the UI after confirming they affect the compositor output.
 
 
 ## License  

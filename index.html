@@ -104,6 +104,16 @@
     .swatch:focus-visible {
       box-shadow: 0 0 0 2px #0b0b0c, 0 0 0 3px #9fe6b8;
     }
+    .option-select-inline {
+      position: static !important;
+      width: 100%;
+      height: auto;
+      padding: 10px 10px;
+      margin: 8px 0 0;
+      overflow: visible;
+      clip: auto;
+      white-space: normal;
+    }
   </style>
 </head>
 <body>
@@ -289,7 +299,14 @@
           },
           interiorsByTrim: {
             "$MTS13": { "$IBE00": "All Black", "$IWW00": "Black & White", "$ICW00": "Cream" },
-            "$MTS14": { "$IBE00": "All Black", "$IWW00": "Black & White", "$ICW00": "Cream" }
+            "$MTS14": {
+              "$IBE00": "All Black - Wood",
+              "$IBC00": "All Black - Carbon",
+              "$IWW00": "Black & White - Wood",
+              "$IWC00": "Black & White - Carbon",
+              "$ICW00": "Cream - Wood",
+              "$ICC00": "Cream - Carbon"
+            }
           },
           defaults: {
             trim: "$MTS13",
@@ -445,8 +462,11 @@
     "$ICW01": "#d8ccb5",
     "$ICC02": "#d8ccb5",
     "$IBE00": "#1a1a1a",
+    "$IBC00": "#1a1a1a",
     "$IWW00": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
-    "$ICW00": "#d8ccb5"
+    "$IWC00": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
+    "$ICW00": "#d8ccb5",
+    "$ICC00": "#d8ccb5"
   };
 
   function setToast(msg) {
@@ -506,6 +526,24 @@
     });
   }
 
+  function selectHasDuplicateSwatches(selectEl, paletteMap) {
+    const seen = new Set();
+    return Array.from(selectEl.options).some((opt) => {
+      const key = paletteMap[opt.value] || opt.value;
+      if (seen.has(key)) return true;
+      seen.add(key);
+      return false;
+    });
+  }
+
+  function updateInteriorInputMode() {
+    const useSelect = selectHasDuplicateSwatches(interiorEl, INTERIOR_SWATCHES);
+    interiorSwatchesEl.style.display = useSelect ? "none" : "flex";
+    interiorEl.classList.toggle("visually-hidden", !useSelect);
+    interiorEl.classList.toggle("option-select-inline", useSelect);
+    interiorEl.setAttribute("aria-hidden", useSelect ? "false" : "true");
+  }
+
   function refreshTrimScopedOptions({ preserve = true } = {}) {
     const cfg = getActiveConfig();
     const trim = trimEl.value;
@@ -524,6 +562,7 @@
     if (!wheelsEl.value && wheelsEl.options.length) wheelsEl.selectedIndex = 0;
     if (!interiorEl.value && interiorEl.options.length) interiorEl.selectedIndex = 0;
     renderSwatches(interiorEl, interiorSwatchesEl, INTERIOR_SWATCHES);
+    updateInteriorInputMode();
   }
 
   function buildUrl({ bgOverride } = {}) {

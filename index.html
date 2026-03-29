@@ -488,13 +488,23 @@
             "$SR04": "Six Seat",
             "$STY7S": "Seven Seat"
           },
+          layoutsByTrim: {
+            "$MTX10": {
+              "$STY5S": "Five Seat",
+              "$SR04": "Six Seat",
+              "$STY7S": "Seven Seat"
+            },
+            "$MTX14": {
+              "$SR04": "Six Seat"
+            }
+          },
           wheelsByTrim: {
-            "$MTX10": { "$WX00": '20" Cyberstream', "$WX20": '22" Turbine' },
-            "$MTX14": { "$WX00": '20" Cyberstream', "$WX20": '22" Turbine' }
+            "$MTX10": { "$WX00": '20" Perihelix' },
+            "$MTX14": { "$WX00": '20" Perihelix', "$WX20": '22" Machina' }
           },
           interiorsByTrim: {
-            "$MTX10": { "$INYPB": "All Black", "$INYPW": "Black & White" },
-            "$MTX14": { "$INYPB": "All Black", "$INYPW": "Black & White" }
+            "$MTX10": { "$INYPB": "All Black - Ebony", "$INYPW": "Black & White - Walnut" },
+            "$MTX14": { "$INYPB": "All Black - Carbon", "$INYPW": "Black & White - Carbon" }
           },
           defaults: {
             trim: "$MTX10",
@@ -996,18 +1006,27 @@
     const trim = trimEl.value;
     const wheels = cfg.wheelsByTrim?.[trim] || {};
     const interiors = cfg.interiorsByTrim?.[trim] || {};
+    const layouts = cfg.layoutsByTrim?.[trim] || cfg.layouts || null;
 
     const prevWheel = wheelsEl.value;
     const prevInterior = interiorEl.value;
+    const prevLayout = layoutEl.value;
 
     fillSelect(wheelsEl, wheels);
     fillSelect(interiorEl, interiors);
+    if (layouts) {
+      fillSelect(layoutEl, layouts);
+    } else {
+      layoutEl.innerHTML = "";
+    }
 
     if (preserve && prevWheel && wheels[prevWheel]) wheelsEl.value = prevWheel;
     if (preserve && prevInterior && interiors[prevInterior]) interiorEl.value = prevInterior;
+    if (preserve && prevLayout && layouts?.[prevLayout]) layoutEl.value = prevLayout;
 
     if (!wheelsEl.value && wheelsEl.options.length) wheelsEl.selectedIndex = 0;
     if (!interiorEl.value && interiorEl.options.length) interiorEl.selectedIndex = 0;
+    if (!layoutEl.value && layoutEl.options.length) layoutEl.selectedIndex = 0;
     renderInteriorControls();
   }
 
@@ -1067,7 +1086,7 @@
     titleEl.textContent = `Tesla ${m.label} Config Decoder (Unofficial)`;
     subtitleEl.textContent = `Build a Tesla image URL that matches your ${m.label} config. Uses Tesla's public compositor endpoint. No login. No guarantees.`;
     steeringWrap.style.display = shouldShowSteering(cfg, view) ? "block" : "none";
-    layoutWrapEl.style.display = cfg.layouts ? "block" : "none";
+    layoutWrapEl.style.display = layoutEl.options.length ? "block" : "none";
     steeringLabelEl.textContent = cfg.steeringPlacement === "always" ? "Steering" : "Steering (INTERIOR view only)";
 
     const url = buildUrl();
@@ -1214,22 +1233,18 @@
     } else {
       steeringEl.innerHTML = "";
     }
-    if (cfg.layouts) {
-      fillSelect(layoutEl, cfg.layouts);
-    } else {
-      layoutEl.innerHTML = "";
-    }
-
     trimEl.value = cfg.defaults.trim;
     paintEl.value = cfg.defaults.paint;
     viewEl.value = cfg.defaults.view;
     bgEl.value = cfg.defaults.bg;
     sizeEl.value = cfg.defaults.size;
-    if (cfg.defaults.layout && cfg.layouts?.[cfg.defaults.layout]) layoutEl.value = cfg.defaults.layout;
     extraOptionsEl.value = cfg.defaults.extraOptions || "";
     if (cfg.hasSteering && cfg.defaults.steering) steeringEl.value = cfg.defaults.steering;
 
     refreshTrimScopedOptions({ preserve: false });
+    if (cfg.defaults.layout && Array.from(layoutEl.options).some((opt) => opt.value === cfg.defaults.layout)) {
+      layoutEl.value = cfg.defaults.layout;
+    }
     updateUI();
   }
 

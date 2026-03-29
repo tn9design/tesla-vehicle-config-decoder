@@ -62,7 +62,7 @@ Only profiles that were checked against Tesla's live compositor are exposed in t
 | --- | --- | --- | --- |
 | Model S | `2024-2026` | `configurator/compositor` | Current/modern profile |
 | Model S | `2021-2023` | `v1/compositor` | Legacy refresh-era profile with verified Plaid carbon interior variants |
-| Model X | `2025-2026` | `configurator/compositor` | Current/modern profile with seating-layout control |
+| Model X | `2025-2026` | `configurator/compositor` | Current/modern profile with trim-scoped seating-layout control |
 | Model X | `2021-2024` | `v1/compositor` | Legacy refresh-era profile with seating-layout control |
 | Model 3 | `2024-2026` | `configurator/compositor` | Current/modern profile |
 | Model 3 | `2018-2020` | `configurator/compositor` | Verified legacy profile using older view names |
@@ -250,8 +250,8 @@ Some entries are single tokens. Others are bundled combinations because Tesla on
 
 | Code | Description |
 | --- | --- |
-| `$WX00` | 20" Cyberstream |
-| `$WX20` | 22" Turbine |
+| `$WX00` | 20" Perihelix |
+| `$WX20` | 22" Machina |
 
 #### Interior
 
@@ -267,6 +267,11 @@ Some entries are single tokens. Others are bundled combinations because Tesla on
 | `$STY5S` | Five Seat |
 | `$SR04` | Six Seat |
 | `$STY7S` | Seven Seat |
+
+Current UI note:
+
+- All-Wheel Drive exposes five-, six-, and seven-seat layouts.
+- Plaid is currently restricted to six-seat layout.
 
 #### Steering
 

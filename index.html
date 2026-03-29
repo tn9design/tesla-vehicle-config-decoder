@@ -150,6 +150,11 @@
         <select id="interior" class="visually-hidden" aria-hidden="true"></select>
       </div>
 
+      <div id="steeringWrap" style="display:none;">
+        <label id="steeringLabel" for="steering">Steering</label>
+        <select id="steering"></select>
+      </div>
+
       <div class="row">
         <div>
           <label for="bg">Background</label>
@@ -170,11 +175,6 @@
       </div>
 
       <select id="view" class="visually-hidden" aria-hidden="true"></select>
-
-      <div id="steeringWrap" style="display:none;">
-        <label id="steeringLabel" for="steering">Steering</label>
-        <select id="steering"></select>
-      </div>
 
       <div class="divider"></div>
 
@@ -201,7 +201,7 @@
           <li>Use "Extra option codes" for packages not shown in dropdowns (for example: `$APF2,$APBS`).</li>
           <li>Accessories (Home Charger, liners, etc.) do not affect the render URL.</li>
           <li>Wheels and interiors can be trim-scoped (options change by trim).</li>
-          <li>Model S steering code only appears in INTERIOR view.</li>
+          <li>Modern Model S steering only affects INTERIOR view; legacy Model S steering can affect exterior renders too.</li>
         </ul>
       </div>
     </div>

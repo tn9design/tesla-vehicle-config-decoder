@@ -122,13 +122,20 @@
           </select>
         </div>
         <div>
+          <label for="profile">Year</label>
+          <select id="profile"></select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
           <label for="trim">Trim</label>
           <select id="trim"></select>
         </div>
-      </div>
-      <div class="fullrow">
-        <label for="profile">Visual/Profile</label>
-        <select id="profile"></select>
+        <div>
+          <label for="wheels">Wheels</label>
+          <select id="wheels"></select>
+        </div>
       </div>
 
       <div class="fullrow">
@@ -137,16 +144,10 @@
         <select id="paint" class="visually-hidden" aria-hidden="true"></select>
       </div>
 
-      <div class="row">
-        <div>
-          <label for="interior">Interior</label>
-          <div id="interiorSwatches" class="swatches" role="radiogroup" aria-label="Interior"></div>
-          <select id="interior" class="visually-hidden" aria-hidden="true"></select>
-        </div>
-        <div>
-          <label for="wheels">Wheels</label>
-          <select id="wheels"></select>
-        </div>
+      <div class="fullrow">
+        <label for="interior">Interior</label>
+        <div id="interiorSwatches" class="swatches" role="radiogroup" aria-label="Interior"></div>
+        <select id="interior" class="visually-hidden" aria-hidden="true"></select>
       </div>
 
       <div class="row">
@@ -224,7 +225,7 @@
       label: "Model S",
       profiles: {
         modern: {
-          label: "2024+ Refresh visuals",
+          label: "2024-2026",
           base: "https://static-assets.tesla.com/configurator/compositor",
           fixed: { context: "design_studio_2", model: "ms", crop: "0,0,0,0", overlay: "0" },
           trims: { "$MTS22": "Dual Motor AWD", "$MTS23": "Plaid" },
@@ -258,7 +259,7 @@
           defaults: { trim: "$MTS23", paint: "$PN02", view: "FRONT34", bg: "2", size: "1920", steering: "$ST06" }
         },
         legacy2021: {
-          label: "2021-2023 legacy visuals (v1)",
+          label: "2021-2023",
           base: "https://static-assets.tesla.com/v1/compositor/",
           fixed: { model: "ms", modelOption: "$MDLS" },
           trims: { "$MTS13": "Dual Motor / Plaid (legacy token)" },
@@ -646,7 +647,7 @@
       applyProfile(m.defaultProfile);
       return;
     }
-    profileEl.innerHTML = "";
+    fillSelect(profileEl, { current: "Current" });
     profileEl.disabled = true;
     applyProfile("");
   }

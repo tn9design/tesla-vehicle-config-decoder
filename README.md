@@ -1,6 +1,6 @@
 # Tesla Vehicle Config Decoder
 
-An unofficial static web app for generating Tesla image-compositor URLs for supported Model S, Model 3, and Model Y configurations.
+An unofficial static web app for generating Tesla image-compositor URLs for supported Model S, Model X, Model 3, and Model Y configurations.
 
 The app lets you choose a model, year bucket, trim, paint, wheels, interior, steering, and view, then builds a direct Tesla compositor URL with a live preview. It is designed for owners who want a stable image URL for dashboards, automations, documentation, or personal use without needing to decode Tesla option tokens by hand.
 
@@ -16,7 +16,7 @@ This project is not affiliated with or endorsed by Tesla. “Tesla”, “Model 
 
 ## Features
 
-- Supports Model S, Model 3, and Model Y
+- Supports Model S, Model X, Model 3, and Model Y
 - Includes verified year buckets for legacy compositor profiles
 - Uses trim-scoped paint, wheel, and interior option sets
 - Automatically switches to wheel or interior views when those selections change
@@ -62,6 +62,8 @@ Only profiles that were checked against Tesla's live compositor are exposed in t
 | --- | --- | --- | --- |
 | Model S | `2024-2026` | `configurator/compositor` | Current/modern profile |
 | Model S | `2021-2023` | `v1/compositor` | Legacy refresh-era profile with verified Plaid carbon interior variants |
+| Model X | `2025-2026` | `configurator/compositor` | Current/modern profile with seating-layout control |
+| Model X | `2021-2024` | `v1/compositor` | Legacy refresh-era profile with seating-layout control |
 | Model 3 | `2024-2026` | `configurator/compositor` | Current/modern profile |
 | Model 3 | `2018-2020` | `configurator/compositor` | Verified legacy profile using older view names |
 | Model Y | `2025-2026` | `configurator/compositor` | Current/modern profile |
@@ -218,6 +220,111 @@ Some entries are single tokens. Others are bundled combinations because Tesla on
 | `$APBS` | Autopilot package token, currently treated as pass-through metadata |
 | `$SC04` | Supercharging-related token, currently treated as pass-through metadata |
 | `$CPF1` | Decor/package token observed in legacy URLs, not currently verified as visually active |
+
+</details>
+
+<details>
+<summary><strong>Model X</strong></summary>
+
+### Modern Model X (`2025-2026`)
+
+#### Trim
+
+| Code | Description |
+| --- | --- |
+| `$MTX10` | All-Wheel Drive |
+| `$MTX14` | Plaid |
+
+#### Paint
+
+| Code | Description |
+| --- | --- |
+| `$PN01` | Stealth Grey |
+| `$PPSW` | Pearl White Multi-Coat |
+| `$PX02` | Diamond Black |
+| `$PB00` | Frost Blue Metallic |
+| `$PR01` | Ultra Red |
+| `$PN02` | Lunar Silver |
+
+#### Wheels
+
+| Code | Description |
+| --- | --- |
+| `$WX00` | 20" Cyberstream |
+| `$WX20` | 22" Turbine |
+
+#### Interior
+
+| Code | Description |
+| --- | --- |
+| `$INYPB` | All Black premium interior |
+| `$INYPW` | Black & White premium interior |
+
+#### Seating
+
+| Code | Description |
+| --- | --- |
+| `$STY5S` | Five Seat |
+| `$SR04` | Six Seat |
+| `$STY7S` | Seven Seat |
+
+#### Steering
+
+| Code | Description |
+| --- | --- |
+| `$ST03` | Round Steering Wheel |
+| `$ST0Y` | Yoke Steering |
+
+### Legacy Model X (`2021-2024`)
+
+#### Model / Trim
+
+| Code | Description |
+| --- | --- |
+| `$MDLX` | Model X identifier used in legacy `v1/compositor` URLs |
+| `$MTX10` | Long Range AWD |
+| `$MTX14` | Plaid |
+
+#### Paint
+
+| Code | Description |
+| --- | --- |
+| `$PBSB` | Solid Black |
+| `$PPSW` | Pearl White Multi-Coat |
+| `$PPSB` | Deep Blue Metallic |
+| `$PMNG` | Midnight Silver Metallic |
+| `$PPMR` | Red Multi-Coat |
+
+#### Wheels
+
+| Code | Description |
+| --- | --- |
+| `$WX00` | 20" Cyberstream |
+| `$WX20` | 22" Turbine |
+
+#### Interior
+
+| Code | Description |
+| --- | --- |
+| `$IBE00` | All Black, Long Range |
+| `$IWW00` | Black & White, Long Range |
+| `$IBC00` | All Black, Plaid |
+| `$IWC00` | Black & White, Plaid |
+
+#### Seating
+
+| Code | Description |
+| --- | --- |
+| `$STY5S` | Five Seat |
+| `$SR04` | Six Seat |
+| `$STY7S` | Seven Seat |
+
+#### Steering
+
+| Code | Description |
+| --- | --- |
+| `$ST03` | Round Steering Wheel |
+| `$ST0Y` | Yoke Steering |
 
 </details>
 

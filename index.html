@@ -224,6 +224,7 @@
           <label for="model">Model</label>
           <select id="model">
             <option value="ms">Model S</option>
+            <option value="mx">Model X</option>
             <option value="m3">Model 3</option>
             <option value="my">Model Y</option>
           </select>
@@ -261,6 +262,11 @@
           <label for="interiorDecor">Trim Style</label>
           <select id="interiorDecor"></select>
         </div>
+      </div>
+
+      <div id="layoutWrap" class="fullrow" style="display:none;">
+        <label for="layout">Seating</label>
+        <select id="layout"></select>
       </div>
 
       <div class="fullrow">
@@ -447,6 +453,111 @@
       },
       defaultProfile: "modern"
     },
+    mx: {
+      label: "Model X",
+      profiles: {
+        modern: {
+          label: "2025-2026",
+          base: "https://static-assets.tesla.com/configurator/compositor",
+          fixed: { context: "design_studio_2", model: "mx", crop: "0,0,0,0", overlay: "0" },
+          trims: {
+            "$MTX10": "All-Wheel Drive",
+            "$MTX14": "Plaid"
+          },
+          paints: {
+            "$PN01": "Stealth Grey",
+            "$PPSW": "Pearl White Multi-Coat",
+            "$PX02": "Diamond Black",
+            "$PB00": "Frost Blue Metallic",
+            "$PR01": "Ultra Red",
+            "$PN02": "Lunar Silver"
+          },
+          views: {
+            "FRONT34": "Front 3/4",
+            "REAR34": "Rear 3/4",
+            "SIDE": "Side Profile",
+            "RIMCLOSEUP": "Wheel Close-Up",
+            "INTERIOR": "Interior Cabin"
+          },
+          steering: { "$ST03": "Round Steering Wheel", "$ST0Y": "Yoke Steering" },
+          hasSteering: true,
+          steeringPlacement: "interiorOnly",
+          interiorViewKey: "INTERIOR",
+          layouts: {
+            "$STY5S": "Five Seat",
+            "$SR04": "Six Seat",
+            "$STY7S": "Seven Seat"
+          },
+          wheelsByTrim: {
+            "$MTX10": { "$WX00": '20" Cyberstream', "$WX20": '22" Turbine' },
+            "$MTX14": { "$WX00": '20" Cyberstream', "$WX20": '22" Turbine' }
+          },
+          interiorsByTrim: {
+            "$MTX10": { "$INYPB": "All Black", "$INYPW": "Black & White" },
+            "$MTX14": { "$INYPB": "All Black", "$INYPW": "Black & White" }
+          },
+          defaults: {
+            trim: "$MTX10",
+            paint: "$PN01",
+            view: "FRONT34",
+            bg: "1",
+            size: "1920",
+            steering: "$ST03",
+            layout: "$STY5S"
+          }
+        },
+        legacy2021: {
+          label: "2021-2024",
+          base: "https://static-assets.tesla.com/v1/compositor/",
+          fixed: { context: "design_studio_2", model: "mx", modelOption: "$MDLX" },
+          trims: {
+            "$MTX10": "Long Range AWD",
+            "$MTX14": "Plaid"
+          },
+          paints: {
+            "$PBSB": "Solid Black",
+            "$PPSW": "Pearl White Multi-Coat",
+            "$PPSB": "Deep Blue Metallic",
+            "$PMNG": "Midnight Silver Metallic",
+            "$PPMR": "Red Multi-Coat"
+          },
+          views: {
+            "FRONT34": "Front 3/4 (legacy)",
+            "REAR34": "Rear 3/4 (legacy)",
+            "SIDE": "Side Profile (legacy)",
+            "RIMCLOSEUP": "Wheel Close-Up (legacy)",
+            "INTERIOR": "Interior Cabin (legacy)"
+          },
+          steering: { "$ST03": "Round Steering Wheel", "$ST0Y": "Yoke Steering" },
+          hasSteering: true,
+          steeringPlacement: "interiorOnly",
+          interiorViewKey: "INTERIOR",
+          layouts: {
+            "$STY5S": "Five Seat",
+            "$SR04": "Six Seat",
+            "$STY7S": "Seven Seat"
+          },
+          wheelsByTrim: {
+            "$MTX10": { "$WX00": '20" Cyberstream', "$WX20": '22" Turbine' },
+            "$MTX14": { "$WX00": '20" Cyberstream', "$WX20": '22" Turbine' }
+          },
+          interiorsByTrim: {
+            "$MTX10": { "$IBE00": "All Black", "$IWW00": "Black & White" },
+            "$MTX14": { "$IBC00": "All Black", "$IWC00": "Black & White" }
+          },
+          defaults: {
+            trim: "$MTX10",
+            paint: "$PPSW",
+            view: "FRONT34",
+            bg: "1",
+            size: "1440",
+            steering: "$ST03",
+            layout: "$STY5S"
+          }
+        }
+      },
+      defaultProfile: "modern"
+    },
     m3: {
       label: "Model 3",
       profiles: {
@@ -624,6 +735,8 @@
   const interiorSwatchesEl = el("interiorSwatches");
   const interiorDecorWrapEl = el("interiorDecorWrap");
   const interiorDecorEl = el("interiorDecor");
+  const layoutWrapEl = el("layoutWrap");
+  const layoutEl = el("layout");
   const viewEl = el("view");
   const prevViewEl = el("prevView");
   const nextViewEl = el("nextView");
@@ -679,10 +792,12 @@
     "$IPB14": "#1a1a1a",
     "$IN3PB": "#1a1a1a",
     "$INPB0": "#1a1a1a",
+    "$INYPB": "#1a1a1a",
     "$IWW01": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$IWC02": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$IN3PW,$PFP31": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$INPW0": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
+    "$INYPW": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$IPW2": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$IPW3": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$IPW4": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
@@ -900,6 +1015,7 @@
     const cfg = getActiveConfig();
     const trim = trimEl.value;
     const paint = paintEl.value;
+    const layout = layoutEl.value;
     const view = viewEl.value;
     const bg = bgOverride ?? bgEl.value;
     const rawSize = Number(sizeEl.value);
@@ -918,6 +1034,7 @@
 
     const usesInteriorOnlyLayout = cfg.steeringPlacement === "interiorOnly" && view === cfg.interiorViewKey;
     if (!usesInteriorOnlyLayout && wheelsEl.value) options.push(wheelsEl.value);
+    if (layout) options.push(layout);
 
     if (cfg.steeringPlacement === "always") {
       options.push(...cleanedExtras);
@@ -950,6 +1067,7 @@
     titleEl.textContent = `Tesla ${m.label} Config Decoder (Unofficial)`;
     subtitleEl.textContent = `Build a Tesla image URL that matches your ${m.label} config. Uses Tesla's public compositor endpoint. No login. No guarantees.`;
     steeringWrap.style.display = shouldShowSteering(cfg, view) ? "block" : "none";
+    layoutWrapEl.style.display = cfg.layouts ? "block" : "none";
     steeringLabelEl.textContent = cfg.steeringPlacement === "always" ? "Steering" : "Steering (INTERIOR view only)";
 
     const url = buildUrl();
@@ -995,13 +1113,13 @@
     ].join("\n");
   }
 
-  [trimEl, paintEl, wheelsEl, interiorEl, viewEl, bgEl, steeringEl, sizeEl, extraOptionsEl].forEach(x => {
+  [trimEl, paintEl, wheelsEl, interiorEl, layoutEl, viewEl, bgEl, steeringEl, sizeEl, extraOptionsEl].forEach(x => {
     x.addEventListener("change", () => {
       const cfg = getActiveConfig();
       if (x === trimEl) refreshTrimScopedOptions({ preserve: true });
       if (x === trimEl || x === paintEl) setRecommendedView("default");
       if (x === wheelsEl) setRecommendedView("wheel");
-      if (x === interiorEl) setRecommendedView("interior");
+      if (x === interiorEl || x === layoutEl) setRecommendedView("interior");
       if (x === steeringEl && cfg.steeringPlacement === "interiorOnly") setRecommendedView("interior");
       updateUI();
     });
@@ -1096,12 +1214,18 @@
     } else {
       steeringEl.innerHTML = "";
     }
+    if (cfg.layouts) {
+      fillSelect(layoutEl, cfg.layouts);
+    } else {
+      layoutEl.innerHTML = "";
+    }
 
     trimEl.value = cfg.defaults.trim;
     paintEl.value = cfg.defaults.paint;
     viewEl.value = cfg.defaults.view;
     bgEl.value = cfg.defaults.bg;
     sizeEl.value = cfg.defaults.size;
+    if (cfg.defaults.layout && cfg.layouts?.[cfg.defaults.layout]) layoutEl.value = cfg.defaults.layout;
     extraOptionsEl.value = cfg.defaults.extraOptions || "";
     if (cfg.hasSteering && cfg.defaults.steering) steeringEl.value = cfg.defaults.steering;
 

@@ -271,18 +271,19 @@
           },
           views: {
             "STUD_3QTR_V2": "Front 3/4 (legacy)",
-            "STUD_REAR_3QTR_V2": "Rear 3/4 (legacy)",
+            "REAR34": "Rear 3/4 (legacy)",
             "STUD_SIDE": "Side Profile (legacy)",
-            "STUD_WHEEL": "Wheel Close-Up (legacy)"
+            "RIMCLOSEUP": "Wheel Close-Up (legacy)",
+            "STUD_INTERIOR": "Interior Cabin (legacy)"
           },
           steering: { "$ST0Y": "Yoke Steering", "$ST00": "Round Steering Wheel" },
           hasSteering: true,
           steeringPlacement: "always",
           wheelsByTrim: {
-            "$MTS13": { "$WS11": '21" Arachnid', "$WS10": '19" Tempest' }
+            "$MTS13": { "$WS90": '19" Tempest', "$WS11": '21" Arachnid' }
           },
           interiorsByTrim: {
-            "$MTS13": { "$IWW00": "All Black", "$IAB0P": "Black & White", "$ICB0P": "Cream" }
+            "$MTS13": { "$IBE00": "All Black", "$IWW00": "Black & White", "$ICW00": "Cream" }
           },
           defaults: {
             trim: "$MTS13",
@@ -437,9 +438,9 @@
     "$IPW14": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$ICW01": "#d8ccb5",
     "$ICC02": "#d8ccb5",
-    "$IWW00": "#1a1a1a",
-    "$IAB0P": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
-    "$ICB0P": "#d8ccb5"
+    "$IBE00": "#1a1a1a",
+    "$IWW00": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
+    "$ICW00": "#d8ccb5"
   };
 
   function setToast(msg) {

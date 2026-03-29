@@ -156,10 +156,16 @@
         <select id="paint" class="visually-hidden" aria-hidden="true"></select>
       </div>
 
-      <div class="fullrow">
-        <label for="interior">Interior</label>
-        <div id="interiorSwatches" class="swatches" role="radiogroup" aria-label="Interior"></div>
-        <select id="interior" class="visually-hidden" aria-hidden="true"></select>
+      <div class="row">
+        <div>
+          <label for="interior">Interior</label>
+          <div id="interiorSwatches" class="swatches" role="radiogroup" aria-label="Interior"></div>
+          <select id="interior" class="visually-hidden" aria-hidden="true"></select>
+        </div>
+        <div id="interiorDecorWrap" style="display:none;">
+          <label for="interiorDecor">Trim Style</label>
+          <select id="interiorDecor"></select>
+        </div>
       </div>
 
       <div id="steeringWrap" style="display:none;">
@@ -416,6 +422,8 @@
   const wheelsEl = el("wheels");
   const interiorEl = el("interior");
   const interiorSwatchesEl = el("interiorSwatches");
+  const interiorDecorWrapEl = el("interiorDecorWrap");
+  const interiorDecorEl = el("interiorDecor");
   const viewEl = el("view");
   const prevViewEl = el("prevView");
   const nextViewEl = el("nextView");
@@ -528,22 +536,98 @@
     });
   }
 
-  function selectHasDuplicateSwatches(selectEl, paletteMap) {
+  function parseInteriorLabel(label) {
+    const parts = label.split(" - ");
+    return { color: parts[0] || label, decor: parts[1] || "" };
+  }
+
+  function getInteriorVariants() {
+    const variants = [];
+    Array.from(interiorEl.options).forEach((opt) => {
+      const parsed = parseInteriorLabel(opt.textContent);
+      variants.push({
+        code: opt.value,
+        label: opt.textContent,
+        color: parsed.color,
+        decor: parsed.decor,
+        swatch: INTERIOR_SWATCHES[opt.value] || "#737680"
+      });
+    });
+    return variants;
+  }
+
+  function hasInteriorDecorVariants() {
     const seen = new Set();
-    return Array.from(selectEl.options).some((opt) => {
-      const key = paletteMap[opt.value] || opt.value;
+    return getInteriorVariants().some((variant) => {
+      const key = `${variant.color}::${variant.swatch}`;
       if (seen.has(key)) return true;
       seen.add(key);
       return false;
     });
   }
 
-  function updateInteriorInputMode() {
-    const useSelect = selectHasDuplicateSwatches(interiorEl, INTERIOR_SWATCHES);
-    interiorSwatchesEl.style.display = useSelect ? "none" : "flex";
-    interiorEl.classList.toggle("visually-hidden", !useSelect);
-    interiorEl.classList.toggle("option-select-inline", useSelect);
-    interiorEl.setAttribute("aria-hidden", useSelect ? "false" : "true");
+  function renderInteriorControls() {
+    const variants = getInteriorVariants();
+    const useDecorSelect = hasInteriorDecorVariants();
+    interiorDecorWrapEl.style.display = useDecorSelect ? "block" : "none";
+
+    if (!useDecorSelect) {
+      renderSwatches(interiorEl, interiorSwatchesEl, INTERIOR_SWATCHES);
+      return;
+    }
+
+    interiorSwatchesEl.innerHTML = "";
+    const colorMap = new Map();
+    variants.forEach((variant) => {
+      const key = `${variant.color}::${variant.swatch}`;
+      if (!colorMap.has(key)) colorMap.set(key, variant);
+    });
+
+    Array.from(colorMap.values()).forEach((variant) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "swatch";
+      btn.style.background = variant.swatch;
+      btn.title = variant.color;
+      btn.setAttribute("aria-label", variant.color);
+      btn.setAttribute("role", "radio");
+      btn.addEventListener("click", () => {
+        const preferredDecor = interiorDecorEl.value;
+        const match = variants.find((item) => item.color === variant.color && item.decor === preferredDecor)
+          || variants.find((item) => item.color === variant.color)
+          || variant;
+        interiorEl.value = match.code;
+        syncInteriorDecorSelection();
+        updateUI();
+      });
+      interiorSwatchesEl.appendChild(btn);
+    });
+
+    syncInteriorDecorSelection();
+  }
+
+  function syncInteriorDecorSelection() {
+    const variants = getInteriorVariants();
+    const current = variants.find((variant) => variant.code === interiorEl.value) || variants[0];
+    if (!current) return;
+
+    const decorOptions = {};
+    variants
+      .filter((variant) => variant.color === current.color)
+      .forEach((variant) => {
+        decorOptions[variant.decor || "Standard"] = variant.decor || "Standard";
+      });
+    fillSelect(interiorDecorEl, decorOptions);
+    interiorDecorEl.value = current.decor || "Standard";
+
+    Array.from(interiorSwatchesEl.children).forEach((node, idx) => {
+      const variant = Array.from(new Map(
+        variants.map((item) => [`${item.color}::${item.swatch}`, item])
+      ).values())[idx];
+      const selected = !!variant && variant.color === current.color;
+      node.classList.toggle("active", selected);
+      node.setAttribute("aria-checked", selected ? "true" : "false");
+    });
   }
 
   function refreshTrimScopedOptions({ preserve = true } = {}) {
@@ -563,8 +647,7 @@
 
     if (!wheelsEl.value && wheelsEl.options.length) wheelsEl.selectedIndex = 0;
     if (!interiorEl.value && interiorEl.options.length) interiorEl.selectedIndex = 0;
-    renderSwatches(interiorEl, interiorSwatchesEl, INTERIOR_SWATCHES);
-    updateInteriorInputMode();
+    renderInteriorControls();
   }
 
   function buildUrl({ bgOverride } = {}) {
@@ -625,7 +708,11 @@
     const url = buildUrl();
     urlBox.textContent = url;
     updateSwatchSelection(paintEl, paintSwatchesEl);
-    updateSwatchSelection(interiorEl, interiorSwatchesEl);
+    if (hasInteriorDecorVariants()) {
+      syncInteriorDecorSelection();
+    } else {
+      updateSwatchSelection(interiorEl, interiorSwatchesEl);
+    }
 
     preview.referrerPolicy = "no-referrer";
     preview.src = url;
@@ -659,6 +746,15 @@
     x.addEventListener("input", () => {
       if (x === sizeEl) updateUI();
     });
+  });
+
+  interiorDecorEl.addEventListener("change", () => {
+    const variants = getInteriorVariants();
+    const current = variants.find((variant) => variant.code === interiorEl.value) || variants[0];
+    const match = variants.find((variant) => variant.color === current.color && (variant.decor || "Standard") === interiorDecorEl.value);
+    if (!match) return;
+    interiorEl.value = match.code;
+    updateUI();
   });
 
   modelEl.addEventListener("change", () => applyModel(modelEl.value));

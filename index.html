@@ -413,45 +413,84 @@
     },
     my: {
       label: "Model Y",
-      base: "https://static-assets.tesla.com/configurator/compositor",
-      fixed: { context: "design_studio_2", model: "my", crop: "0,0,0,0", overlay: "0" },
-      trims: {
-        "$MTY61": "Rear-Wheel Drive",
-        "$MTY77": "All-Wheel Drive",
-        "$MTY60": "Rear-Wheel Drive (Premium)",
-        "$MTY48": "All-Wheel Drive (Premium)",
-        "$MTY70": "Performance (AWD)"
+      profiles: {
+        modern: {
+          label: "2025-2026",
+          base: "https://static-assets.tesla.com/configurator/compositor",
+          fixed: { context: "design_studio_2", model: "my", crop: "0,0,0,0", overlay: "0" },
+          trims: {
+            "$MTY61": "Rear-Wheel Drive",
+            "$MTY77": "All-Wheel Drive",
+            "$MTY60": "Rear-Wheel Drive (Premium)",
+            "$MTY48": "All-Wheel Drive (Premium)",
+            "$MTY70": "Performance (AWD)"
+          },
+          paints: {
+            "$PN01": "Stealth Grey",
+            "$PPSW": "Pearl White Multi-Coat",
+            "$PPSB": "Deep Blue Metallic",
+            "$PX02": "Diamond Black",
+            "$PR01": "Ultra Red",
+            "$PN00": "Quicksilver"
+          },
+          views: {
+            "FRONT34": "Front 3/4",
+            "REAR34": "Rear 3/4",
+            "SIDE": "Side Profile",
+            "RIMCLOSEUP": "Wheel Close-Up"
+          },
+          hasSteering: false,
+          wheelsByTrim: {
+            "$MTY61": { "$WY18P": '18" Aperture', "$WY19P": '19" Crossflow' },
+            "$MTY77": { "$WY18P": '18" Aperture', "$WY19P": '19" Crossflow' },
+            "$MTY60": { "$WY18P": '18" Aperture', "$WY19P": '19" Crossflow' },
+            "$MTY48": { "$WY18P": '18" Aperture', "$WY19P": '19" Crossflow' },
+            "$MTY70": { "$WY21A": '21" Arachnid 2.0' }
+          },
+          interiorsByTrim: {
+            "$MTY61": { "$IBB3": "All Black" },
+            "$MTY77": { "$IBB3": "All Black" },
+            "$MTY60": { "$IPB12": "All Black", "$IPW12": "Black & White" },
+            "$MTY48": { "$IPB12": "All Black", "$IPW12": "Black & White" },
+            "$MTY70": { "$IPB14": "All Black", "$IPW14": "Black & White" }
+          },
+          defaults: { trim: "$MTY61", paint: "$PN01", view: "FRONT34", bg: "1", size: "1920" }
+        },
+        legacy2020: {
+          label: "2020-2024",
+          base: "https://static-assets.tesla.com/v1/compositor/",
+          fixed: { model: "my" },
+          trims: {
+            "$MTY09": "Long Range AWD",
+            "$MTY12": "Performance AWD"
+          },
+          paints: {
+            "$PPSW": "Pearl White Multi-Coat",
+            "$PBSB": "Solid Black",
+            "$PMNG": "Midnight Silver Metallic",
+            "$PPSB": "Deep Blue Metallic",
+            "$PPMR": "Red Multi-Coat"
+          },
+          views: {
+            "STUD_3QTR": "Front 3/4",
+            "STUD_REAR": "Rear 3/4",
+            "STUD_SIDE": "Side Profile",
+            "STUD_WHEEL": "Wheel Close-Up",
+            "STUD_SEAT": "Interior Cabin"
+          },
+          hasSteering: false,
+          wheelsByTrim: {
+            "$MTY09": { "$WY19B": '19" Gemini', "$WY20P": '20" Induction' },
+            "$MTY12": { "$WY20P": '20" Induction', "$WY21P": '21" Uberturbine' }
+          },
+          interiorsByTrim: {
+            "$MTY09": { "$INPB0": "All Black", "$INPW0": "Black & White" },
+            "$MTY12": { "$INPB0": "All Black", "$INPW0": "Black & White" }
+          },
+          defaults: { trim: "$MTY09", paint: "$PPSW", view: "STUD_3QTR", bg: "1", size: "1920" }
+        }
       },
-      paints: {
-        "$PN01": "Stealth Grey",
-        "$PPSW": "Pearl White Multi-Coat",
-        "$PPSB": "Deep Blue Metallic",
-        "$PX02": "Diamond Black",
-        "$PR01": "Ultra Red",
-        "$PN00": "Quicksilver"
-      },
-      views: {
-        "FRONT34": "Front 3/4",
-        "REAR34": "Rear 3/4",
-        "SIDE": "Side Profile",
-        "RIMCLOSEUP": "Wheel Close-Up"
-      },
-      hasSteering: false,
-      wheelsByTrim: {
-        "$MTY61": { "$WY18P": '18" Aperture', "$WY19P": '19" Crossflow' },
-        "$MTY77": { "$WY18P": '18" Aperture', "$WY19P": '19" Crossflow' },
-        "$MTY60": { "$WY18P": '18" Aperture', "$WY19P": '19" Crossflow' },
-        "$MTY48": { "$WY18P": '18" Aperture', "$WY19P": '19" Crossflow' },
-        "$MTY70": { "$WY21A": '21" Arachnid 2.0' }
-      },
-      interiorsByTrim: {
-        "$MTY61": { "$IBB3": "All Black" },
-        "$MTY77": { "$IBB3": "All Black" },
-        "$MTY60": { "$IPB12": "All Black", "$IPW12": "Black & White" },
-        "$MTY48": { "$IPB12": "All Black", "$IPW12": "Black & White" },
-        "$MTY70": { "$IPB14": "All Black", "$IPW14": "Black & White" }
-      },
-      defaults: { trim: "$MTY61", paint: "$PN01", view: "FRONT34", bg: "1", size: "1920" }
+      defaultProfile: "modern"
     }
   };
 
@@ -505,8 +544,10 @@
     "$IPB4": "#1a1a1a",
     "$IPB12": "#1a1a1a",
     "$IPB14": "#1a1a1a",
+    "$INPB0": "#1a1a1a",
     "$IWW01": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$IWC02": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
+    "$INPW0": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$IPW2": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$IPW3": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$IPW4": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",

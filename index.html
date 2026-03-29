@@ -171,7 +171,7 @@
       <select id="view" class="visually-hidden" aria-hidden="true"></select>
 
       <div id="steeringWrap" style="display:none;">
-        <label for="steering">Steering (INTERIOR view only)</label>
+        <label id="steeringLabel" for="steering">Steering</label>
         <select id="steering"></select>
       </div>
 
@@ -245,6 +245,7 @@
           },
           steering: { "$ST06": "Standard Steering Wheel", "$ST1Y": "Yoke Steering" },
           hasSteering: true,
+          steeringPlacement: "interiorOnly",
           interiorViewKey: "INTERIOR",
           wheelsByTrim: {
             "$MTS22": { "$WS93": '19" Magnetite', "$WS13": '21" Velarium' },
@@ -275,7 +276,8 @@
             "STUD_WHEEL": "Wheel Close-Up (legacy)"
           },
           steering: { "$ST0Y": "Yoke Steering", "$ST00": "Round Steering Wheel" },
-          hasSteering: false,
+          hasSteering: true,
+          steeringPlacement: "always",
           wheelsByTrim: {
             "$MTS13": { "$WS11": '21" Arachnid', "$WS10": '19" Tempest' }
           },
@@ -288,6 +290,7 @@
             view: "STUD_3QTR_V2",
             bg: "1",
             size: "1440",
+            steering: "$ST0Y",
             extraOptions: "$APF2,$APBS,$SC04,$CPF1"
           }
         }
@@ -392,6 +395,7 @@
   const nextViewEl = el("nextView");
   const bgEl = el("bg");
   const steeringWrap = el("steeringWrap");
+  const steeringLabelEl = el("steeringLabel");
   const steeringEl = el("steering");
   const sizeEl = el("size");
   const extraOptionsEl = el("extraOptions");
@@ -461,6 +465,12 @@
     return modelConfig;
   }
 
+  function shouldShowSteering(cfg, view) {
+    if (!cfg.hasSteering) return false;
+    if (cfg.steeringPlacement === "always") return true;
+    return view === cfg.interiorViewKey;
+  }
+
   function renderSwatches(selectEl, swatchEl, paletteMap) {
     swatchEl.innerHTML = "";
     Array.from(selectEl.options).forEach((opt) => {
@@ -525,14 +535,22 @@
       .map(code => code.trim())
       .filter(Boolean);
 
-    let options = [];
-    if (cfg.hasSteering && view === cfg.interiorViewKey) {
-      options = [trim, paint, interiorEl.value, steeringEl.value];
+    const options = [];
+    if (cfg.fixed?.modelOption) options.push(cfg.fixed.modelOption);
+    options.push(trim, paint);
+
+    const usesInteriorOnlyLayout = cfg.steeringPlacement === "interiorOnly" && view === cfg.interiorViewKey;
+    if (!usesInteriorOnlyLayout && wheelsEl.value) options.push(wheelsEl.value);
+
+    if (cfg.steeringPlacement === "always") {
+      options.push(...cleanedExtras);
+      if (interiorEl.value) options.push(interiorEl.value);
+      if (steeringEl.value) options.push(steeringEl.value);
     } else {
-      options = [trim, paint, wheelsEl.value, interiorEl.value];
+      if (interiorEl.value) options.push(interiorEl.value);
+      if (shouldShowSteering(cfg, view) && steeringEl.value) options.push(steeringEl.value);
+      options.push(...cleanedExtras);
     }
-    if (cfg.fixed?.modelOption) options.unshift(cfg.fixed.modelOption);
-    options = options.concat(cleanedExtras);
 
     const params = new URLSearchParams();
     params.set("options", options.join(","));
@@ -553,7 +571,8 @@
     const view = viewEl.value;
     titleEl.textContent = `Tesla ${m.label} Config Decoder (Unofficial)`;
     subtitleEl.textContent = `Build a Tesla image URL that matches your ${m.label} config. Uses Tesla's public compositor endpoint. No login. No guarantees.`;
-    steeringWrap.style.display = (cfg.hasSteering && view === cfg.interiorViewKey) ? "block" : "none";
+    steeringWrap.style.display = shouldShowSteering(cfg, view) ? "block" : "none";
+    steeringLabelEl.textContent = cfg.steeringPlacement === "always" ? "Steering" : "Steering (INTERIOR view only)";
 
     const url = buildUrl();
     urlBox.textContent = url;

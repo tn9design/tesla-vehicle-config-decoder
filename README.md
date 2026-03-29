@@ -17,6 +17,8 @@ This is an **unofficial** helper to generate Tesla’s image-compositor URLs for
 - Copy the URL to your clipboard  
 - Copy a Home Assistant YAML snippet with the image URL  
 - Toggle studio/transparent URLs for dark/light use  
+- Switch Model S between refresh visuals and 2021-2023 legacy `v1/compositor` visuals  
+- Add extra Tesla option tokens for older builds that expose packages outside the dropdowns  
 
 ## Usage  
 

@@ -271,7 +271,7 @@
 
       <div class="fullrow">
         <label for="extraOptions">Extra option codes (comma separated)</label>
-        <input id="extraOptions" type="text" placeholder="$APF2,$APBS,$SC04,$CPF1" />
+        <input id="extraOptions" type="text" placeholder="$APF2,$APBS,$SC04,$CPF1" autocomplete="off" spellcheck="false" />
         <button id="missingOptionsHelp" class="help-link" type="button">Your model's options not shown here?</button>
       </div>
 
@@ -1222,6 +1222,7 @@
     }
 
     const cfg = getActiveConfig();
+    extraOptionsEl.value = "";
 
     fillSelect(trimEl, cfg.trims);
     fillSelect(paintEl, cfg.paints);
@@ -1238,7 +1239,7 @@
     viewEl.value = cfg.defaults.view;
     bgEl.value = cfg.defaults.bg;
     sizeEl.value = cfg.defaults.size;
-    extraOptionsEl.value = cfg.defaults.extraOptions || "";
+    extraOptionsEl.value = cfg.defaults.extraOptions ?? "";
     if (cfg.hasSteering && cfg.defaults.steering) steeringEl.value = cfg.defaults.steering;
 
     refreshTrimScopedOptions({ preserve: false });

@@ -33,6 +33,19 @@
     button:hover { background: #23232c; }
     .btnrow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
     .muted { font-size: 12px; color: #a6a6a6; }
+    .help-link {
+      display: inline-block;
+      margin: 10px 0 0;
+      color: #cfd6ff;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+      background: none;
+      border: 0;
+      padding: 0;
+      font: inherit;
+    }
+    .help-link:hover { color: #ffffff; }
     .urlbox {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       font-size: 12px; padding: 10px; border-radius: 12px; background: #0e0e12; border: 1px solid #2a2a33;
@@ -116,6 +129,55 @@
       clip: auto;
       white-space: normal;
     }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 6, 8, 0.76);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 20;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-card {
+      width: min(640px, 100%);
+      max-height: 80vh;
+      overflow: auto;
+      background: #121214;
+      border: 1px solid #2a2a33;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+    }
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .modal-head h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .icon-btn {
+      width: 32px;
+      min-width: 32px;
+      height: 32px;
+      padding: 0;
+      border-radius: 999px;
+    }
+    .modal-card ol {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: #d0d0d0;
+      line-height: 1.45;
+    }
+    .modal-card li + li { margin-top: 8px; }
+    .modal-card a {
+      color: #cfd6ff;
+    }
   </style>
 </head>
 <body>
@@ -168,6 +230,11 @@
         </div>
       </div>
 
+      <div class="fullrow">
+        <label for="extraOptions">Extra option codes (comma separated)</label>
+        <input id="extraOptions" type="text" placeholder="$APF2,$APBS,$SC04,$CPF1" />
+      </div>
+
       <div id="steeringWrap" style="display:none;">
         <label id="steeringLabel" for="steering">Steering</label>
         <select id="steering"></select>
@@ -187,16 +254,12 @@
         </div>
       </div>
 
-      <div class="fullrow">
-        <label for="extraOptions">Extra option codes (comma separated)</label>
-        <input id="extraOptions" type="text" placeholder="$APF2,$APBS,$SC04,$CPF1" />
-      </div>
-
       <select id="view" class="visually-hidden" aria-hidden="true"></select>
 
       <div class="divider"></div>
 
       <label>Generated URL</label>
+      <button id="missingOptionsHelp" class="help-link" type="button">Your model's options not shown here?</button>
       <div id="url" class="urlbox"></div>
 
       <div class="btnrow">
@@ -233,6 +296,27 @@
       <p class="muted" style="margin-top:10px;">
         If the preview does not load, Tesla may be rate-limiting or the endpoint may have changed.
       </p>
+    </div>
+  </div>
+
+  <div id="helpModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="helpModalTitle">
+      <div class="modal-head">
+        <h2 id="helpModalTitle">Send Us Your Tesla Config URL</h2>
+        <button id="closeHelpModal" class="icon-btn" type="button" aria-label="Close help dialog">&times;</button>
+      </div>
+      <p>If your exact model-year options are missing here, the fastest way to help expand support is to send the Tesla image/config URL for your car.</p>
+      <ol>
+        <li>Log in to your Tesla account at <a href="https://www.tesla.com/teslaaccount" target="_blank" rel="noopener noreferrer">tesla.com/teslaaccount</a>.</li>
+        <li>Open your vehicle details or any place Tesla shows the image/config thumbnail for that car.</li>
+        <li>Right-click the vehicle image and choose the browser option that copies the image link or copies the image address/path.</li>
+        <li>Paste that full Tesla URL into a GitHub issue so we can decode the missing options and add support later.</li>
+      </ol>
+      <p class="muted">Helpful details to include: model, year, trim, wheel type, interior color, and anything else that makes your configuration unusual.</p>
+      <div class="btnrow">
+        <button id="openIssueLink" type="button">Open GitHub Issue</button>
+        <button id="copyIssueTemplate" type="button">Copy Issue Template</button>
+      </div>
     </div>
   </div>
 
@@ -516,11 +600,26 @@
   const sizeEl = el("size");
   const extraOptionsEl = el("extraOptions");
   const modelEl = el("model");
+  const missingOptionsHelpEl = el("missingOptionsHelp");
+  const helpModalEl = el("helpModal");
+  const closeHelpModalEl = el("closeHelpModal");
+  const openIssueLinkEl = el("openIssueLink");
+  const copyIssueTemplateEl = el("copyIssueTemplate");
   const urlBox = el("url");
   const preview = el("preview");
   const toast = el("toast");
   let currentModelKey = "ms";
   let currentProfileKey = "";
+  const ISSUE_URL = "https://github.com/tn9design/tesla-vehicle-config-decoder/issues/new?title=Missing%20Tesla%20config%20support&body=" + encodeURIComponent([
+    "Please add support for this Tesla configuration.",
+    "",
+    "Model:",
+    "Year:",
+    "Trim:",
+    "Config/Image URL:",
+    "",
+    "Notes:"
+  ].join("\n"));
   const PAINT_SWATCHES = {
     "$PN01": "linear-gradient(145deg, #555c65, #2f3338)",
     "$PPSW": "linear-gradient(145deg, #fcfcfc, #d5d5d5)",
@@ -841,6 +940,16 @@
     }
   }
 
+  function openHelpModal() {
+    helpModalEl.classList.add("open");
+    helpModalEl.setAttribute("aria-hidden", "false");
+  }
+
+  function closeHelpModal() {
+    helpModalEl.classList.remove("open");
+    helpModalEl.setAttribute("aria-hidden", "true");
+  }
+
   function buildHaYaml() {
     const url = buildUrl();
     return [
@@ -895,6 +1004,24 @@
       `Transparent (bkba_opt=1): ${light}`,
     ].join("\n");
     copy(out);
+  });
+
+  missingOptionsHelpEl.addEventListener("click", openHelpModal);
+  closeHelpModalEl.addEventListener("click", closeHelpModal);
+  helpModalEl.addEventListener("click", (event) => {
+    if (event.target === helpModalEl) closeHelpModal();
+  });
+  openIssueLinkEl.addEventListener("click", () => window.open(ISSUE_URL, "_blank", "noopener,noreferrer"));
+  copyIssueTemplateEl.addEventListener("click", () => copy([
+    "Model:",
+    "Year:",
+    "Trim:",
+    "Config/Image URL:",
+    "",
+    "Notes:"
+  ].join("\n")));
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && helpModalEl.classList.contains("open")) closeHelpModal();
   });
 
   function applyModel(modelKey) {

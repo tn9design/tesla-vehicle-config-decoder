@@ -508,6 +508,30 @@
     return view === cfg.interiorViewKey;
   }
 
+  function getWheelViewKey(cfg) {
+    if (cfg.views?.RIMCLOSEUP) return "RIMCLOSEUP";
+    if (cfg.views?.STUD_RIMCLOSEUP) return "STUD_RIMCLOSEUP";
+    return "";
+  }
+
+  function getInteriorViewKey(cfg) {
+    if (cfg.interiorViewKey && cfg.views?.[cfg.interiorViewKey]) return cfg.interiorViewKey;
+    if (cfg.views?.STUD_INTERIOR) return "STUD_INTERIOR";
+    if (cfg.views?.INTERIOR) return "INTERIOR";
+    return "";
+  }
+
+  function setRecommendedView(kind) {
+    const cfg = getActiveConfig();
+    let nextView = "";
+    if (kind === "default") nextView = cfg.defaults?.view || "";
+    if (kind === "wheel") nextView = getWheelViewKey(cfg);
+    if (kind === "interior") nextView = getInteriorViewKey(cfg);
+    if (nextView && viewEl.querySelector(`option[value="${nextView}"]`)) {
+      viewEl.value = nextView;
+    }
+  }
+
   function renderSwatches(selectEl, swatchEl, paletteMap) {
     swatchEl.innerHTML = "";
     Array.from(selectEl.options).forEach((opt) => {
@@ -597,6 +621,7 @@
           || variants.find((item) => item.color === variant.color)
           || variant;
         interiorEl.value = match.code;
+        setRecommendedView("interior");
         syncInteriorDecorSelection();
         updateUI();
       });
@@ -741,6 +766,9 @@
   [trimEl, paintEl, wheelsEl, interiorEl, viewEl, bgEl, steeringEl, sizeEl, extraOptionsEl].forEach(x => {
     x.addEventListener("change", () => {
       if (x === trimEl) refreshTrimScopedOptions({ preserve: true });
+      if (x === trimEl || x === paintEl) setRecommendedView("default");
+      if (x === wheelsEl) setRecommendedView("wheel");
+      if (x === interiorEl || x === steeringEl) setRecommendedView("interior");
       updateUI();
     });
     x.addEventListener("input", () => {
@@ -754,6 +782,7 @@
     const match = variants.find((variant) => variant.color === current.color && (variant.decor || "Standard") === interiorDecorEl.value);
     if (!match) return;
     interiorEl.value = match.code;
+    setRecommendedView("interior");
     updateUI();
   });
 

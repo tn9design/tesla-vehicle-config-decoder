@@ -1,4 +1,4 @@
-# Tesla Vehicle Config Decoder
+# Tesla Image Configurator
 
 An unofficial static web app for generating Tesla image-compositor URLs for supported Model S, Model X, Model 3, and Model Y configurations.
 
@@ -22,7 +22,7 @@ This project is not affiliated with or endorsed by Tesla. “Tesla”, “Model 
 - Automatically switches to wheel or interior views when those selections change
 - Supports steering options on Model S, including legacy exterior-compatible steering tokens
 - Generates direct Tesla compositor image URLs with live preview
-- Copies raw URLs and Home Assistant YAML snippets
+- Copies raw Tesla compositor URLs and opens the rendered image directly
 - Includes a help flow for submitting unsupported Tesla config URLs
 
 ## Quick start
@@ -39,7 +39,7 @@ Open the live configurator:
 2. Open [`index.html`](index.html) in any modern browser.
 3. Choose a supported model and year profile.
 4. Adjust the configuration until the preview matches your car.
-5. Copy the generated URL or Home Assistant YAML.
+5. Copy the generated URL or open the image directly.
 
 Because the app is fully static, there is no build step and no dependency installation.
 
@@ -83,25 +83,11 @@ That conservative approach is deliberate. It keeps the app from generating misle
 
 If your exact vehicle options are not shown in the app:
 
-1. Open the live configurator and click the help link in the `Extra option codes` section.
+1. Open the live configurator and click the missing-options help link near the bottom of the left column.
 2. Copy the Tesla image/config URL from your Tesla account or pre-owned inventory image.
 3. Open a GitHub issue and paste the full URL along with your model, year, trim, and any details that matter.
 
 The app includes a built-in issue template flow for this.
-
-## Home Assistant example
-
-The `Copy HA YAML` button generates a snippet like this:
-
-```yaml
-type: picture
-image: "https://static-assets.tesla.com/configurator/compositor?context=design_studio_2&options=$MTS23,$PN02,$WS14,$IWC02&view=FRONT34&model=ms&size=1920&bkba_opt=2&crop=0,0,0,0&overlay=0"
-tap_action:
-  action: url
-  url_path: "https://static-assets.tesla.com/configurator/compositor?context=design_studio_2&options=$MTS23,$PN02,$WS14,$IWC02&view=FRONT34&model=ms&size=1920&bkba_opt=2&crop=0,0,0,0&overlay=0"
-```
-
-Paste that into a Lovelace dashboard to display the car image and open the direct Tesla image when tapped.
 
 ## Repository layout
 

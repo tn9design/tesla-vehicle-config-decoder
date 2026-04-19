@@ -445,7 +445,7 @@
           <select id="layout"></select>
         </div>
 
-        <div class="fullrow">
+        <div id="bgWrap" class="fullrow">
           <label for="bg">Background</label>
           <select id="bg">
             <option value="1">Transparent</option>
@@ -795,6 +795,58 @@
           },
           defaults: { trim: "$MT367", paint: "$PN01", view: "STUD_FRONT34", bg: "2", size: "1920" }
         },
+        legacy2021: {
+          label: "2021-2023",
+          base: "https://static-assets.tesla.com/v1/compositor/",
+          fixed: { model: "m3", modelOption: "$MDL3" },
+          optionSequence: [
+            "$APBS",
+            "$BC3R",
+            "$DV4W",
+            "INTERIOR",
+            "PAINT",
+            "$PRM31",
+            "$SC04",
+            "MODEL_OPTION",
+            "WHEEL",
+            "$SLR1",
+            "TRIM",
+            "$PL31",
+            "$SPT31",
+            "$CPF1",
+            "$RSF1",
+            "$CW03",
+            "EXTRAS"
+          ],
+          trims: {
+            "$MT317": "Performance AWD"
+          },
+          paints: {
+            "$PBSB": "Solid Black",
+            "$PPSW": "Pearl White Multi-Coat",
+            "$PPSB": "Deep Blue Metallic",
+            "$PMNG": "Midnight Silver Metallic",
+            "$PPMR": "Red Multi-Coat"
+          },
+          views: {
+            "STUD_3QTR": "Front 3/4",
+            "STUD_REAR": "Rear 3/4",
+            "STUD_SIDE": "Side Profile",
+            "STUD_WHEEL": "Wheel Close-Up",
+            "STUD_SEAT": "Interior Cabin"
+          },
+          hasSteering: false,
+          wheelsByTrim: {
+            "$MT317": { "$W33D": '20" Uberturbine' }
+          },
+          wheelDefaultsByTrim: {
+            "$MT317": "$W33D"
+          },
+          interiorsByTrim: {
+            "$MT317": { "$IPB1": "All Black", "$IPW1": "Black & White" }
+          },
+          defaults: { trim: "$MT317", paint: "$PPSW", view: "STUD_3QTR", bg: "2", size: "1440" }
+        },
         legacy2018: {
           label: "2018-2020",
           base: "https://static-assets.tesla.com/configurator/compositor",
@@ -951,6 +1003,7 @@
   const prevViewEl = el("prevView");
   const nextViewEl = el("nextView");
   const bgEl = el("bg");
+  const bgWrapEl = el("bgWrap");
   const steeringWrap = el("steeringWrap");
   const steeringLabelEl = el("steeringLabel");
   const steeringButtonsEl = el("steeringButtons");
@@ -1011,6 +1064,7 @@
     "$IBC02": "#1a1a1a",
     "$IBB4": "#1a1a1a",
     "$IBB3": "#1a1a1a",
+    "$IPB1": "#1a1a1a",
     "$IPB2": "#1a1a1a",
     "$IPB3": "#1a1a1a",
     "$IPB4": "#1a1a1a",
@@ -1024,6 +1078,7 @@
     "$IN3PW,$PFP31": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$INPW0": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$INYPW": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
+    "$IPW1": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$IPW2": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$IPW3": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
     "$IPW4": "linear-gradient(145deg, #151515 50%, #f1f1f1 50%)",
@@ -1517,22 +1572,36 @@
       .map(code => code.trim())
       .filter(Boolean);
 
-    const options = [];
-    if (cfg.fixed?.modelOption) options.push(cfg.fixed.modelOption);
-    options.push(trim, paint);
-
     const usesInteriorOnlyLayout = cfg.steeringPlacement === "interiorOnly" && view === cfg.interiorViewKey;
-    if (!usesInteriorOnlyLayout && wheelsEl.value) options.push(wheelsEl.value);
-    if (layout) options.push(layout);
+    const optionGroups = {
+      MODEL_OPTION: cfg.fixed?.modelOption ? [cfg.fixed.modelOption] : [],
+      TRIM: trim ? [trim] : [],
+      PAINT: paint ? [paint] : [],
+      WHEEL: !usesInteriorOnlyLayout && wheelsEl.value ? [wheelsEl.value] : [],
+      LAYOUT: layout ? [layout] : [],
+      INTERIOR: interiorEl.value ? [interiorEl.value] : [],
+      STEERING: shouldShowSteering(cfg, view) && steeringEl.value ? [steeringEl.value] : [],
+      FIXED_EXTRAS: cfg.fixed?.extraOptions || [],
+      EXTRAS: cleanedExtras
+    };
 
-    if (cfg.steeringPlacement === "always") {
-      options.push(...cleanedExtras);
-      if (interiorEl.value) options.push(interiorEl.value);
-      if (steeringEl.value) options.push(steeringEl.value);
+    const options = [];
+    if (cfg.optionSequence?.length) {
+      for (const entry of cfg.optionSequence) {
+        if (optionGroups[entry]) {
+          options.push(...optionGroups[entry]);
+        } else {
+          options.push(entry);
+        }
+      }
     } else {
-      if (interiorEl.value) options.push(interiorEl.value);
-      if (shouldShowSteering(cfg, view) && steeringEl.value) options.push(steeringEl.value);
-      options.push(...cleanedExtras);
+      options.push(...optionGroups.MODEL_OPTION, ...optionGroups.TRIM, ...optionGroups.PAINT, ...optionGroups.WHEEL, ...optionGroups.LAYOUT, ...optionGroups.FIXED_EXTRAS);
+
+      if (cfg.steeringPlacement === "always") {
+        options.push(...optionGroups.EXTRAS, ...optionGroups.INTERIOR, ...optionGroups.STEERING);
+      } else {
+        options.push(...optionGroups.INTERIOR, ...optionGroups.STEERING, ...optionGroups.EXTRAS);
+      }
     }
 
     const params = new URLSearchParams();
@@ -1552,10 +1621,12 @@
   function updateUI() {
     const cfg = getActiveConfig();
     const view = viewEl.value;
+    const interiorViewKey = getInteriorViewKey(cfg);
     titleEl.textContent = "Tesla Image Configurator";
     subtitleEl.textContent = "Build a Tesla image URL that matches your vehicle config. Uses Tesla's public compositor endpoint. No login. No guarantees.";
     document.title = "Tesla Image Configurator";
     const showSteering = shouldShowSteeringControls(cfg);
+    bgWrapEl.style.display = view === interiorViewKey ? "none" : "block";
     steeringWrap.style.display = showSteering ? "block" : "none";
     interiorRowEl.classList.toggle("with-steering", showSteering);
     layoutWrapEl.style.display = layoutEl.options.length > 1 ? "block" : "none";

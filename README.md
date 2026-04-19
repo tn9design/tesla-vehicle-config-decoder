@@ -65,6 +65,7 @@ Only profiles that were checked against Tesla's live compositor are exposed in t
 | Model X | `2025-2026` | `configurator/compositor` | Current/modern profile with trim-scoped seating-layout control |
 | Model X | `2021-2024` | `v1/compositor` | Legacy refresh-era profile with seating-layout control |
 | Model 3 | `2024-2026` | `configurator/compositor` | Current/modern profile |
+| Model 3 | `2021-2023` | `v1/compositor` | Legacy refresh-era profile, currently verified for Performance AWD only |
 | Model 3 | `2018-2020` | `configurator/compositor` | Verified legacy profile using older view names |
 | Model Y | `2025-2026` | `configurator/compositor` | Current/modern profile |
 | Model Y | `2020-2024` | `v1/compositor` | Verified legacy profile |
@@ -370,6 +371,64 @@ Current UI note:
 | `$IPW3` | Black & White, All-Wheel Drive (Premium) |
 | `$IPB4` | All Black, Performance |
 | `$IPW4` | Black & White, Performance |
+
+### Legacy Model 3 (`2021-2023`)
+
+Current UI note:
+
+- Currently verified for `Performance AWD` only. Additional owner URLs are still needed for other trims and wheel sets.
+- The app preserves the full verified legacy package bundle for this profile because the `STUD_WHEEL` render falls back without it.
+
+#### Trim
+
+| Code | Description |
+| --- | --- |
+| `$MT317` | Performance AWD |
+
+#### Paint
+
+| Code | Description |
+| --- | --- |
+| `$PBSB` | Solid Black |
+| `$PPSW` | Pearl White Multi-Coat |
+| `$PPSB` | Deep Blue Metallic |
+| `$PMNG` | Midnight Silver Metallic |
+| `$PPMR` | Red Multi-Coat |
+
+#### Wheels
+
+| Code | Description |
+| --- | --- |
+| `$W33D` | 20" Uberturbine |
+
+#### Interior
+
+| Code | Description |
+| --- | --- |
+| `$IPB1` | All Black |
+| `$IPW1` | Black & White |
+
+#### Other verified URL tokens
+
+| Code | Description |
+| --- | --- |
+| `$MDL3` | Model 3 identifier used in legacy `v1/compositor` URLs |
+| `$DV4W` | Legacy Performance-related token bundled with the verified trim in the app |
+| `$SLR1` | Spoiler token paired with the verified legacy Performance wheel bundle |
+
+#### Extra pass-through codes
+
+| Code | Description |
+| --- | --- |
+| `$APBS` | Verified owner-URL token currently preserved with the legacy Performance profile |
+| `$BC3R` | Verified owner-URL token currently preserved with the legacy Performance profile |
+| `$PRM31` | Verified owner-URL token currently preserved with the legacy Performance profile |
+| `$SC04` | Verified owner-URL token currently preserved with the legacy Performance profile |
+| `$PL31` | Verified owner-URL token currently preserved with the legacy Performance profile |
+| `$SPT31` | Verified owner-URL token currently preserved with the legacy Performance profile |
+| `$CPF1` | Verified owner-URL token currently preserved with the legacy Performance profile |
+| `$RSF1` | Verified owner-URL token currently preserved with the legacy Performance profile |
+| `$CW03` | Verified owner-URL token currently preserved with the legacy Performance profile |
 
 ### Legacy Model 3 (`2018-2020`)
 

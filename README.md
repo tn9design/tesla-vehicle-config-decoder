@@ -65,7 +65,7 @@ Only profiles that were checked against Tesla's live compositor are exposed in t
 | Model X | `2025-2026` | `configurator/compositor` | Current/modern profile with trim-scoped seating-layout control |
 | Model X | `2021-2024` | `v1/compositor` | Legacy refresh-era profile with seating-layout control |
 | Model 3 | `2024-2026` | `configurator/compositor` | Current/modern profile |
-| Model 3 | `2021-2023` | `v1/compositor` | Legacy refresh-era profile, currently verified for Performance AWD only |
+| Model 3 | `2021-2023` | `configurator/compositor` | Used-inventory-backed profile with canonical RWD, Long Range AWD, and Performance support |
 | Model 3 | `2018-2020` | `configurator/compositor` | Verified legacy profile using older view names |
 | Model Y | `2025-2026` | `configurator/compositor` | Current/modern profile |
 | Model Y | `2020-2024` | `v1/compositor` | Verified legacy profile |
@@ -376,13 +376,17 @@ Current UI note:
 
 Current UI note:
 
-- Currently verified for `Performance AWD` only. Additional owner URLs are still needed for other trims and wheel sets.
-- The app preserves the full verified legacy package bundle for this profile because the `STUD_WHEEL` render falls back without it.
+- The app now exposes canonical `Standard Range Plus RWD`, `Rear-Wheel Drive`, `Long Range AWD`, and `Performance AWD` trims based on live Tesla used-inventory image URLs.
+- Equivalent observed trim tokens that hashed identically in exterior render checks are collapsed in the UI: `Long Range AWD` also appeared as `$MT315` and `$MT321`, while `Standard Range Plus RWD` also appeared as `$MT337`.
+- Interior `0` vs `1` labels are descriptive UI names based on visible trim differences in Tesla's rendered cabin images, not official Tesla marketing copy.
 
 #### Trim
 
-| Code | Description |
+| Canonical code | Description |
 | --- | --- |
+| `$MT314` | Standard Range Plus RWD |
+| `$MT322` | Rear-Wheel Drive |
+| `$MT324` | Long Range AWD |
 | `$MT317` | Performance AWD |
 
 #### Paint
@@ -399,35 +403,46 @@ Current UI note:
 
 | Code | Description |
 | --- | --- |
+| `$W40B` | 18" Aero |
+| `$W41B` | 19" Sport |
 | `$W33D` | 20" Uberturbine |
 
 #### Interior
 
 | Code | Description |
 | --- | --- |
-| `$IPB1` | All Black |
-| `$IPW1` | Black & White |
+| `$IBB0` | All Black - Dash Trim Only |
+| `$IBB1` | All Black - Dash + Door Trim |
+| `$IBW0` | Black & White - Dash Trim Only |
+| `$IBW1` | Black & White - Dash + Door Trim |
+| `$IPB0` | All Black - Dash Trim Only |
+| `$IPB1` | All Black - Dash + Door Trim |
+| `$IPW1` | Black & White - Dash + Door Trim |
 
 #### Other verified URL tokens
 
 | Code | Description |
 | --- | --- |
-| `$MDL3` | Model 3 identifier used in legacy `v1/compositor` URLs |
-| `$DV4W` | Legacy Performance-related token bundled with the verified trim in the app |
-| `$SLR1` | Spoiler token paired with the verified legacy Performance wheel bundle |
+| `$MDL3` | Model 3 identifier used in `configurator/compositor` URLs for this profile |
+| `$DV2W` | Rear-wheel-drive bundle token observed on `Standard Range Plus RWD` and `Rear-Wheel Drive` inventory renders |
+| `$DV4W` | All-wheel-drive bundle token observed on `Long Range AWD` and `Performance AWD` inventory renders |
+| `$FM3U` | Long Range AWD package token observed after the trim code in inventory render URLs |
+| `$SLR1` | Performance spoiler token paired with the verified `20" Uberturbine` wheel bundle |
 
 #### Extra pass-through codes
 
 | Code | Description |
 | --- | --- |
-| `$APBS` | Verified owner-URL token currently preserved with the legacy Performance profile |
-| `$BC3R` | Verified owner-URL token currently preserved with the legacy Performance profile |
-| `$PRM31` | Verified owner-URL token currently preserved with the legacy Performance profile |
-| `$SC04` | Verified owner-URL token currently preserved with the legacy Performance profile |
-| `$PL31` | Verified owner-URL token currently preserved with the legacy Performance profile |
-| `$SPT31` | Verified owner-URL token currently preserved with the legacy Performance profile |
-| `$CPF1` | Verified owner-URL token currently preserved with the legacy Performance profile |
-| `$RSF1` | Verified owner-URL token currently preserved with the legacy Performance profile |
+| `$APFS` | Shared inventory-render prefix token observed across the used `2021-2023` Model 3 trims |
+| `$BC3R` | Performance-only bundle token observed ahead of the interior token |
+| `$PRM30` | Rear-wheel-drive interior package family token used before `$SC04,$MDL3` |
+| `$PRM31` | AWD / Performance interior package family token used before `$SC04,$MDL3` |
+| `$SC04` | Shared package token observed before `$MDL3` |
+| `$PL31` | Performance-only package token observed after `$MT317` |
+| `$SPT31` | Performance-only package token observed after `$MT317` |
+| `$CPF0` | Shared suffix token observed after the trim code |
+| `$RSF1` | Shared suffix token observed near the end of the used-inventory URL bundle |
+| `$CW03` | Frequently observed trailing suffix token in the used-inventory URLs |
 | `$CW03` | Verified owner-URL token currently preserved with the legacy Performance profile |
 
 ### Legacy Model 3 (`2018-2020`)
